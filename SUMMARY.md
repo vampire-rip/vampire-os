@@ -1,4 +1,4 @@
 # Table of contents
 
-* [Initial page](README.md)
+* [关于 Vampire](README.md)
 
