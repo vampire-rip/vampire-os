@@ -44,9 +44,9 @@ else console.log('sunrisefox will be alone forever');
 [Airbnb Style](https://github.com/airbnb/javascript) 了，如果不行的话，
 继续回到 Standard。
 
-### 简介
+## 简介
 
-#### Standard
+### Standard
 
 顾名思义，Standard Style，就是官方不承认的、非标准的 JavaScript 代码风格（笑。
 不管怎么说，总归没有一种代码风格适合所有项目。最好的话，还是自己写 eslint 规则才是。
@@ -69,7 +69,7 @@ Promise.resolve().then(() =>
 )
 ```
 
-#### Google
+### Google
 
 谷歌的 Style 相比 Standard 详细很多，而且，不光包含一些代码风格上的内容，
 同时还有函数调用惯例、设计方式，等等。讨厌他的原因一方面也是因为他确实管得太宽泛啦，
@@ -89,7 +89,7 @@ Promise.resolve().then(() =>
 );
 ```
 
-#### Airbnb
+### Airbnb
 
 写的时候还没开始用，不过看上去有点...魔法？还要使用过才能评价
 
@@ -105,9 +105,9 @@ Promise.resolve().then(() => 42).then((number) => {
   .then(number => console.log('got number: ', number));
 ```
 
-### 配置
+## 配置
 
-#### 基本配置
+### 基本配置
 
 在 eslint 的帮助下，配置它们还是非常非常简单的，只需要
 
@@ -141,7 +141,7 @@ module.exports = {
 
 ```
 
-#### 自动化配置
+### 自动化配置
 
 为了每次可以愉快地格式化代码，我们可以添加一个 `git pre commit hook`
 来自动地执行一些格式化操作，比如，用 [husky](https://github.com/typicode/husky)
@@ -175,7 +175,7 @@ module.exports = {
 }
 ```
 
-### 完整流程总结
+## 完整流程总结
 
 对于已有 npm 项目：
 

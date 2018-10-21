@@ -1,0 +1,24 @@
+{
+  "name": "vampire-docs",
+  "version": "0.1.0",
+  "description": "vampire docs",
+  "main": "index.js",
+  "scripts": {
+    "build": "vuepress build docs",
+    "dev": "vuepress dev docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vampire-rip/vampire-docs.git"
+  },
+  "author": "SunriseFox",
+  "license": "CC-BY-4.0",
+  "bugs": {
+    "url": "https://github.com/vampire-rip/vampire-docs/issues"
+  },
+  "homepage": "https://github.com/vampire-rip/vampire-docs#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "vuepress": "^1.0.0-alpha.13"
+  }
+}

@@ -1,3 +1,7 @@
+---
+title: 主页
+sidebarDepth: 0
+---
 
 ## Vampire Docs
 
