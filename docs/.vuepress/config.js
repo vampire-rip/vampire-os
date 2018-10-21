@@ -19,6 +19,7 @@ module.exports = {
     ],
     repo: 'vampire-rip/vampire-docs',
     repoLabel: 'GitHub',
+    docsDir: 'docs',
     editLinks: true,
     editLinkText: '你说的不对，我有意见！',
     lastUpdated: '上次更新',
