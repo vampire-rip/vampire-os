@@ -16,6 +16,13 @@ module.exports = {
           ['/vampire/sw.md', '糟糕的 Service Worker']
         ]
       },
+      {
+        title: '吐槽 & 杂项',
+        collapsable: false,
+        children: [
+          ['/misc/visualstudio.md', '辣鸡 Visual Studio'],
+        ]
+      },
     ],
     repo: 'vampire-rip/vampire-docs',
     repoLabel: 'GitHub',
