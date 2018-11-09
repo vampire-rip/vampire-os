@@ -5,7 +5,7 @@ sidebarDepth: 0
 
 ### 一般做法
 
-太长不看：将 APT 下载源修改为国内访问较快的
+将 APT 下载源修改为国内访问较快的
 
 + [清华大学源(IPv6)](https://mirrors.tuna.tsinghua.edu.cn/help/ubuntu/)、
 + [浙江大学源](https://mirrors.zju.edu.cn/)、

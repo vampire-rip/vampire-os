@@ -11,7 +11,7 @@ sidebarDepth: 0
 
 ### WSL (Windows Subsystem for Linux) 简介
 
-太长不看： 在 Windows 10 下通过虚拟技术原生的运行 Linux 操作系统的技术。比虚拟机性能更好，交互更方便。
+在 Windows 10 下通过虚拟技术原生的运行 Linux 操作系统的技术。比虚拟机性能更好，交互更方便。
 
 [维基百科](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux)
 

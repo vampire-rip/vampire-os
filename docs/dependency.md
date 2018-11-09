@@ -5,7 +5,7 @@ sidebarDepth: 0
 
 （如果该过程下载极慢，建议参考 [加速 APT 下载过程](/speedup.md) ）
 
-太长不看：复制以下代码，贴入终端即可（终端的粘贴快捷键是 Ctrl+Shift+V）。
+复制以下代码，贴入终端即可（终端的粘贴快捷键是 Ctrl+Shift+V）。
 
 ```bash
 sudo apt update
