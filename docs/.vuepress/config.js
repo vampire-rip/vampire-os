@@ -1,30 +1,38 @@
 module.exports = {
-  title: 'Vampire Ink',
-  description: 'Where the vampire reads and writes',
+  title: 'Vampire OS',
+  description: 'Full guide of 6.828 OS Lab',
   themeConfig: {
     nav: [
-      { text: 'vampire-ink', link: '/home' },
-      { text: 'vampire-rip', link: 'https://vampire.rip' },
+      { text: 'vampire-os', link: '/home' },
+      { text: 'vampire-rip', link: 'https://vampire.rip/#/os' },
     ],
     sidebar: [
-      ['/home', '主页'],
+      ['/home', '环境搭建指南'],
       {
-        title: '前端的 Vampire',
+        title: '安装 Ubuntu 18.04 系统',
         collapsable: false,
         children: [
-          ['/vampire/codingstyle.md', '有趣的 Coding Style'],
-          ['/vampire/sw.md', '糟糕的 Service Worker']
+          ['/vmware.md', '虚拟机方式'],
+          ['/wsl.md', 'WSL 方式']
         ]
       },
+      ['/speedup.md', '加速依赖安装过程'],
+      ['/dependency.md', '安装依赖'],
+      ['/qemu.md', '安装 QEMU'],
+      ['/questions.md', '常见问题及解答'],
       {
-        title: '吐槽 & 杂项',
-        collapsable: false,
+        title: '实验内容参考翻译',
+        collapsable: true,
         children: [
-          ['/misc/visualstudio.md', '辣鸡 Visual Studio'],
+          ['/Lab_1.md', 'Lab 1 启动 PC'],
+          ['/Lab_2.md', 'Lab 2 内存管理'],
+          ['/Lab_3.md', 'Lab 3 用户进程'],
+          ['/Lab_4.md', 'Lab 4 抢占式多任务管理'],
+          ['/Lab_5.md', 'Lab 5 文件系统相关'],
         ]
       },
     ],
-    repo: 'vampire-rip/vampire-docs',
+    repo: 'vampire-rip/vampire-os',
     repoLabel: 'GitHub',
     docsDir: 'docs',
     editLinks: true,
