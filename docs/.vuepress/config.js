@@ -4,7 +4,7 @@ module.exports = {
   themeConfig: {
     nav: [
       { text: 'vampire-os', link: '/home' },
-      { text: 'vampire-rip', link: 'https://vampire.rip/#/os' },
+      { text: '离线阅读', link: '/optimized.md' },
     ],
     sidebar: [
       ['/home', '环境搭建指南'],
@@ -20,8 +20,9 @@ module.exports = {
       ['/dependency.md', '安装依赖'],
       ['/qemu.md', '安装 QEMU'],
       ['/questions.md', '常见问题及解答'],
+      ['/optimized.md', '实验内容参考翻译'],
       {
-        title: '实验内容参考翻译',
+        title: '内容翻译（原稿）',
         collapsable: true,
         children: [
           ['/Lab_1.md', 'Lab 1 启动 PC'],
@@ -30,7 +31,7 @@ module.exports = {
           ['/Lab_4.md', 'Lab 4 抢占式多任务管理'],
           ['/Lab_5.md', 'Lab 5 文件系统相关'],
         ]
-      },
+      }
     ],
     repo: 'vampire-rip/vampire-os',
     repoLabel: 'GitHub',

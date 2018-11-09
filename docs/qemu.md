@@ -5,7 +5,7 @@ sidebarDepth: 0
 
 ### 安装依赖
 
-参考 [安装依赖](/dependency.md)，在进行接下来的步骤前必须执行。
+请再次确认已经完成了 [安装依赖](/dependency.md)。
 
 ### 获取源代码
 
@@ -35,7 +35,7 @@ sudo make
 sudo make install
 ```
 
-如果一切顺利，执行
+如果没有错误提示，尝试执行
 
 ```bash
 /usr/local/qemu/bin/qemu-system-i386
@@ -46,4 +46,4 @@ sudo make install
 
 ![<QEMU安装成功>](qemu_ok.png)
 
-恭喜，一切顺利！
+恭喜，一切顺利，可以继续配置了~
