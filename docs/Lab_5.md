@@ -92,21 +92,19 @@ UNIX 的 xv6 文件系统使用 512 字节作为块大小，和底层磁盘的�
 
 x86 处理器使用 EFLAGS 寄存器的 IOPL 位来决定保护模式下的代码是否能够进行像 IN 和 OUT 这样的特殊的设备 I/O 指令。因为我们需要访问的所有 IDE 磁盘寄存器都在 x86 的 I/O 空间，而没有被映射在内存地址中间中，为了允许文件系统进程访问这些寄存器，我们只需要给它 I/O 特权就好了。事实上，EFLAGS 寄存器的 IOPL 位为内核提供了一个 "all or nothing / 要么没有，要么全部" 的来控方式制用户模式的代码是否能访问 I/O 空间。在我们这个例子中，我们希望文件系统进程能够访问 I/O 空间，但我们不希望其他任何进程能够访问 I/O 空间。
 
----section exercise---
+::: exercise 练习 1.
 
-**练习 1.** 
 `i386_init` 通过为进程创建函数，`env_create`， 传递 `ENV_TYPE_FS` 类型来标记这个进程是文件系统进程。修改 `env.c` 的 `env_create` 函数，使它给予文件系统进程 I/O 特权，而不要给其他任何进程文件系统特权。
 
 确信你能够不触发一般保护错(General Protection Fault)的情况下启动文件进程。现在，你应该能够在 `make grade` 中通过 `fs i/o` 这一项了。
 
----end section---
+:::
 
----section question---
+::: question 问题
 
-**问题** 
 + 除此之外，你还需要做其他别的事情来确保在切换进程的时候这个 I/O 特权设置能够被正确地保留下来吗？为什么？
 
----end section---
+:::
 
 注意，本次实验的 `GNUmakefile` 会配置 QEMU 和以前一样使用 `obj/kern/kernel.img` 作为磁盘 0 的映像，并使用新的 obj/fs/fs.img 作为磁盘 1 的映像。对于 DOS/Windows，通常分别对应于 C: 和 D:。在本次实验中，我们的文件系统应该只需要对磁盘 1 进行操作，而磁盘 0 只用于启动内核。如果你不小心破坏了磁盘映像，你可以用下面的指令来把它们还原到最开始的状态：
 
@@ -115,19 +113,18 @@ rm obj/kern/kernel.img obj/fs/fs.img
 make
 ```
 
-或者 
+或者
 
 ```bash
 make clean
 make
 ```
 
----section challenge---
+::: challenge 挑战！
 
-**挑战！**
 实现一个中断驱动的 IDE 磁盘存取，使用或者不使用 DMA 均可。你可以决定是把磁盘驱动程序移至内核，还是继续把它和文件系统一起留在用户空间，甚至，如果你真的很想实现微内核之类的，也可以试试把它移至自己独有的环境中。
 
----end section---
+:::
 
 ### 块缓存
 
@@ -139,60 +136,55 @@ make
 
 当然，如果把整个磁盘都读入内存就不太合理了。所以我们会实现某种形式的 `demand paging`，在这种情况下，我们只需要当在这个区域发生缺页时将相应的块从磁盘读入并映射到这个区域中。这样的话，我们可以假设整个磁盘都在内存中。
 
----section exercise---
+::: exercise 练习 2.
 
-**练习 2.** 
 实现在 `fs/bc.c` 的 `bc_pgfault` 和 `flush_block` 方法。`bc_pgfault` 是一个缺页处理函数，就像是在上次实验中，你所写的 copy-on-write 的 fork 一样，除了它的工作是在缺页时从磁盘中将页读入内存。当完成这一部分时，不要忘了：1. `addr` 可能并没有和块边界对齐，2.  `ide_read` 方法操作的是扇区，而不是块。
 
 `flush_block` 方法应该 *在必要时* 将块写回磁盘。如果一个块甚至都不在块缓存中（它根本没被映射），或者它还不是脏的，`flush_block` 应该什么都不做才对。我们会用 VM 硬件来追踪一个磁盘块在上次被读入或写回后有没有修改过。想知道它是否需要写回，我们只需要检查一下 `uvpt` 入口点的 `PTE_D` 脏位的值是不是被设置了（`PTE_D` 位是由处理器在写入某一页时设置的；可以看看 386 参考手册的[第五章](http://pdos.csail.mit.edu/6.828/2011/readings/i386/s05_02.htm)的 5.2.4.3）。将块写回磁盘后，`flush_block` 方法应该用 `sys_page_map` 来清除 `PTE_D` 位。
 
 此时的 `make grade` 应该能够通过 `check_bc`，`check_super` 和 `check_bitmap` 了。
 
----end section---
+:::
 
 在 `fs/fs.c` 中的 `fs_init` 函数是如何利用块缓存的最好的例子。初始化好块缓存之后，它会将磁盘映射区域的指针存储在 `super` 这个全局变量中。之后，我们只需要简单地从 `super` 结构体中读取就可以了，就好像它们在内存中一样。必要的话，我们的缺页处理函数会把它们读入磁盘。
 
----section challenge---
+::: challenge 挑战！
 
-**挑战！** 
 块缓存没有驱逐政策。一旦一个块在块缓存中出错，它将永远不会被从内存中移除。为缓冲区缓存添加一个驱逐策略。硬件每当访问一个页的时候，就会设置它页表入口的 `PTE_A` 位，因此不需要修改每一处访问磁盘的代码就可以大致追踪磁盘块的使用情况。注意留意对脏块的处理。
 
----end section---
+:::
 
 ### 块位图
 
 在 `fs_init` 设置好 `bitmap` 指针之后，我们可以把 `bitmat` 视为打包起来的位的数组，每一位都代表磁盘上的一个块。比如，看一下 `block_is_free`，这个函数简单地检查给定的块在位图中是否被标记为空闲。
 
----section exercise---
+::: exercise 练习 3.
 
-**练习 3.** 
 将 `free_block` 作为模型，实现 `alloc_block` 方法。这个方法应该在位图中找到一个空闲的磁盘块，将其标记为占用，并返回块的块号。When you allocate a block, you should immediately flush the changed bitmap block to disk with flush_block, to help file system consistency. / 每当你分配一个块时，你应该立即用 `flush_block` 将改变的位图块刷回磁盘，以保证文件系统的连续性。
 
 此时，用 `make grade` 的话，你的代码应该能够通过 `alloc_block` 了。
 
----end section---
+:::
 
 ### 文件操作
 
 我们在 `fs/fs.c` 中提供了一些你可能会需要的基本功能，比如解析和操作 `File` 结构体、扫描目录或操作目录文件的入口、从根开始遍历文件系统来得到文件绝对路径等。仔细读一读 `fs/fs.c` 的 *全部* 代码，确保你在继续之前已经理解了这些函数都做了什么。
 
----section exercise---
+::: exercise 练习 4.
 
-**练习 4.** 
 实现 `file_block_walk` 和 `file_get_block`。`file_block_walk` 将文件内部的块偏移量对应于 `struct File` 中的相应的块或者间接块，非常像是 `pgdir_walk` 这个函数对页表做的那样。`file_get_block` 更进一步，将其对应于实际的磁盘块，如果有必要就分配个新的。
 
 用 `make grade` 来测试一下你的代码，如果一切正常，应该能够通过 `file_open`, `file_get_block`, `file_flush/file_truncated/file rewrite` 和 `testfile` 这些测试了。
 
----end section---
+:::
 
 file_block_walk and file_get_block are the workhorses of the file system. For example, file_read and file_write are little more than the bookkeeping atop file_get_block necessary to copy bytes between scattered blocks and a sequential buffer. / `file_block_walk` 和 `file_get_block` 是文件系统中可以依赖做重复工作的“工作马”(workhorse)，比如，`file_read` 和 `file_write`，在记账式的 `file_get_block` 的基础上，再进行稀疏块和连续缓冲区之间的数据拷贝就完全没必要了。
 
----section challenge---
+::: challenge 挑战！
 
-**挑战！** 
 如果在操作中途被打断（比如，崩溃或者重启）的话，文件系统很可能会损坏。实现一些软更新或者日志机制，来使得文件系统能不受崩溃的影响。描述某个情景，在这种情况下旧的文件系统会损坏，而你的文件系统不会。
 
----end section---
+:::
 
 ### 文件系统接口
 
@@ -208,25 +200,23 @@ file_block_walk and file_get_block are the workhorses of the file system. For ex
 
 服务器也会将响应通过 IPC 发回去。我们用 32 位的数字来表示函数的返回值。对于大多数 RPC，这已经是响应的全部了。对于 `FSREQ_READ` 和 `FSREQ_STAT` 来说，它们虽然会返回数据，就直接写在客户端请求的那个页上就好了，没必要在响应的时候再带一个页，因为客户端请求的时候已经发送一个页给文件系统服务器了。Also, in its response, FSREQ_OPEN shares with the client a new "Fd page". We'll return to the file descriptor page shortly. / 而 `FSREQ_OPEN` 会在它的响应中分享给客户端一个新的"文件描述符页"。我们一会儿再介绍这个文件描述符页。
 
----section exercise---
+::: exercise 练习 5.
 
-**练习 5.**
-实现 `fs/serv.c` 的 `serve_read` 
+实现 `fs/serv.c` 的 `serve_read`
 
 `serve_read` 几乎就是通过调用已经实现好了的 `fs/fs.c` 中的 `file_read` 来实现的（而，`file_read` 也就是一系列对 `file_get_block` 的调用）。`serve_read` 只需要提供用于读文件的 RPC 接口就好了。看看这些注释和 `serve_set_size` 中的代码来了解一下服务端代码的结构是怎样的。
 
 此时用 `make grade` 应该能够通过 `serve_open/file_stat/file_close` 和 `file_read` 了。这时的得分应该是 65/145。
 
----end section---
+:::
 
----section exercise---
+::: exercise 练习 6.
 
-**练习 6.**
 实现 `fs/serv.c` 中的 `serve_write` 和 `lib/file.c` 中的 `devfile_write`。
 
 此时用 `make grade` 应该能够通过 `file_write`、 `file_read after file_write`，`open` 和 `large file` 了。这时的得分应该是 85/145。
 
----end section---
+:::
 
 ## Spawning Processes
 
@@ -234,30 +224,27 @@ file_block_walk and file_get_block are the workhorses of the file system. For ex
 
 我们实现 `spawn` 而不是 UNIX 那样的 `exec` 是因为 `spawn` 在用户空间以"外内核方式(exokernel fashion)"实现起来要更简单些，不需要内核的特别协助。想一想如果你需要在用户空间实现 `exec` 需要做些什么，确保你清楚为什么在用户空间实现起来会更难一些。
 
----section exercise---
+::: exercise 练习 7.
 
-**练习 7.**
-`spawn` 依赖新的系统调用 `sye_env_set_trapframe` 来初始化新创建的进程的状态。在 `kernel/syscall.c` 中实现 `sys_env_set_trapframe` （不要忘了在 `syscall()` 中分发这个新的系统调用！） 
+`spawn` 依赖新的系统调用 `sye_env_set_trapframe` 来初始化新创建的进程的状态。在 `kernel/syscall.c` 中实现 `sys_env_set_trapframe` （不要忘了在 `syscall()` 中分发这个新的系统调用！）
 
 试试看，调整 `kern/init.c` 让它启动 `user/spawnhello` 这个程序，它将会试图从文件系统启动 `/hello`。
 
 用 `make grade` 测试一下你的代码。
 
----end section---
+:::
 
----section challenge---
+::: challenge 挑战！
 
-**挑战！** 
 实现 Unix 样式的 `exec`。
 
----end section---
+:::
 
----section challenge---
+::: challenge 挑战！
 
-**挑战！** 
 实现 `mmap-`样式的内存映射的文件，并修改 `spawn`，使其如果可能，就从 ELF 映像直接映射页。
 
----end section---
+:::
 
 ### 在 fork 和 spawn 中共享库状态
 
@@ -271,14 +258,13 @@ UNIX 文件描述符是个非常广泛的概念，比如，也包括 管道，�
 
 我们在 `inc/lib.h` 定义了一个新的 `PTE_SHARE` 位。这一位是 Intel 和 AMD 手册上说的，提供给软件使用的 3 个 PTE 位之一。我们会建立一个规矩，如果页表入口的这一位被设置了，那么无论是 `fork` 还是 `spawn`，这个页表入口就应该直接从父进程复制到子进程中。注意，这个和 copy-on-write 是不同的，因为我们需要确保对这一页的修改是 *共享* 的。
 
----section exercise---
+::: exercise 练习 8.
 
-**练习 8.** 
 修改 `lib/fork.c` 的 `duppage` 来遵照这个新的规矩。如果页表入口的 `PTE_SHARE` 这一位被设置了，应该直接拷贝这个映射。你应该用 `PTE_SYSCALL` 而不是 `0xffff` 来遮盖掉页表入口中相关的位， 因为 `0xffff` 会同时遮盖掉访问位和脏位。
 
 与此类似，实现 `lib/spawn.c` 中的 `copy_shared_pages`。它应该循环查找当前进程的整个页表入口（就像 `fork` 做的那样，把所有有着 `PTE_SHARE` 标记的页直接复制给子进程。
 
----end section---
+:::
 
 运行 `make run-testpteshare` 来检查你的代码是不是正确运行了。你应该能看见类似 `fork handles PTE_SHARE right` 和 `spawn handles PTE_SHARE right` 这样的提示。
 
@@ -288,12 +274,11 @@ UNIX 文件描述符是个非常广泛的概念，比如，也包括 管道，�
 
 为了让 shell 能够工作，我们需要找到一种在其中输入的方式。QEMU 会把输出显示到 CGA 显示器并送入输出串口，但是到目前为止，我们只能在内核监视器中输入数据。在 QEMU 中，在图形窗口中输入就是从键盘中输入到 JOS，而在控制台输入就是通过输入串口送入数据。 `kern/console.c` 已经包含了键盘和串口驱动程序，我们从 lab 1 开始内核监视器就在用它，但是现在，你需要把这些接到系统余下的各个部分。
 
----section exercise---
+::: exercise 练习 9.
 
-**练习 9.** 
 在 `kern/trap.c` 中，调用 `kbd_intr` 来处理 `IRQ_OFFSET + IRQ_KBD`  这个陷阱。调用 `serial_intr` 来处理 `IRQ_OFFSET + IRQ_SERIAL` 这个陷阱。
 
----end section---
+:::
 
 我们已经在 `lib/console.c` 中为你实现了控制台输入输出文件类型。 `kbd_intr` 和 `serial_intr` 会用最近读入的字符填充一个缓冲区，而控制台文件类型会从这个缓冲区中取出字符。默认情况下，控制台文件类型即作为标准输入输出，除非用户重定向了它们。
 
@@ -313,20 +298,18 @@ lsfd
 
 注意，用户库例程 `cprintf` 直接向控制台打印，而不使用文件描述符代码。这对于调试来说很棒，但是如果通过管道送给其他程序的话就很麻烦。想要打印输出到某个特定的文件描述符，比如 1，标准输出，可以用 `fprintf(1, "...", ...)`。`printf("...", ...)` 是输出到 1 号文件描述符的捷径。你可以在 `user/lsfd.c` 中找到例子。
 
----section exercise---
+::: exercise 练习 10.
 
-**练习 10.** 
 shell 还不能支持 I/O 重定向。如果能够运行 `sh <script` 这样的代码，而不是直接把脚本中的各种命令打进去就好了。现在，为 `user/sh.c` 添加一个 I/O 重定向运算符 `<`。
 
 如果实现好了，用 `sh <script` 来试试看。
 
 运行 `make run-testshell` 来测试一下你的 shell。`testshell` 就是把 `fs/testshell.sh` 中的命令输入到 shell 并检查输出和 `fs/testshell.key` 是否一致（注：Windows 下使用 Git 检出可能会有行尾问题）。
 
----end section---
+:::
 
----section challenge---
+::: challenge 挑战！
 
-**挑战！** 
 为 Shell 添加更多的功能，包括但不限于（有一些可能需要也修改文件系统）：
 
 + backgrounding commands (ls &)
@@ -340,13 +323,13 @@ shell 还不能支持 I/O 重定向。如果能够运行 `sh <script` 这样的�
 + file creation
 + ctl-c to kill the running environment
 
----end section---
+:::
 
 现在，你的代码应该能够通过全部的测试了。像以前一样，你可以用 `make grade` 来看看会得到多少分数，~~并用 make handin 上交你的代码~~。
 
 **到这里，这次实验就结束了。** 像以前一样，不要忘了运行 `make grade` 并为每一个问题和其中一个挑战练习写一份答案。在提交之前，用 `git status` 和 `git diff` 来检查一下你的修改，不要忘了 `git add answers-lab5.txt`。当你准备好，通过 `git commit -am 'my solutions to lab 5'` 提交你的修改，~~并用 make handin 来上交你的答案~~。
 
---- 
+---
 
 译： Sun Yi-Ran (sunrisefox@vampire.rip)
 
@@ -358,11 +341,14 @@ shell 还不能支持 I/O 重定向。如果能够运行 `sh <script` 这样的�
 
 HTML 编译： [StackEdit](https://stackedit.io/)
 
-编译脚本： 
+编译脚本：
 
 ```javascript
 Handlebars.registerHelper('transform', function (options) {
   var result = options.fn(this);
+  var regex = /(<p>::: )([\w]+) ([^<\n]+?)(<\/p>\n)(.+?)(\n<p>:::<\/p>)/gms;
+  var replace = '<section class="custom-block $2" type="$2"><strong>$3</strong>$5</section>';
+  result = result.replace(regex, replace)
   result = result.replace(/<p>—section (.+?)—<\/p>/g, '<section type="$1">')
   result = result.replace(/<p>—end section—<\/p>/g, '</section>')
   return result;

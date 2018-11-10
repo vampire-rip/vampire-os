@@ -9,16 +9,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vampire-rip/vampire-docs.git"
+    "url": "git+https://github.com/vampire-rip/vampire-os.git"
   },
   "author": "SunriseFox",
   "license": "CC-BY-4.0",
   "bugs": {
-    "url": "https://github.com/vampire-rip/vampire-docs/issues"
+    "url": "https://github.com/vampire-rip/vampire-os/issues"
   },
-  "homepage": "https://github.com/vampire-rip/vampire-docs#readme",
+  "homepage": "https://github.com/vampire-rip/vampire-os#readme",
   "dependencies": {},
   "devDependencies": {
+    "markdown-it-container": "^2.0.0",
     "vuepress": "^1.0.0-alpha.20"
   }
 }

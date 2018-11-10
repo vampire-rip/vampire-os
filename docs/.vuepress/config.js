@@ -1,3 +1,21 @@
+const renderOp = (md) => ({
+
+  validate: function(params) {
+    return params.trim().match(/^(\w+?)\s+(.*)$/);
+  },
+  render: function (tokens, idx) {
+    var m = tokens[idx].info.trim().match(/^(\w+?)\s+(.*)$/);
+    if (tokens[idx].nesting === 1) {
+      var $2 = md.utils.escapeHtml(m[1]);
+      var $3 = md.utils.escapeHtml(m[2]);
+      return '<section class="custom-block ' + $2 + '" type="' + $2 + '"><strong>' + $3 + '</strong>\n';
+    } else {
+      return '</section>\n';
+    }
+  }
+
+})
+
 module.exports = {
   title: 'Vampire OS',
   description: 'Full guide of 6.828 OS Lab',
@@ -41,4 +59,11 @@ module.exports = {
     lastUpdated: '上次更新',
   },
   evergreen: true,
+  markdown: {
+    extendMarkdown: md => {
+      md.use(require('markdown-it-container'), 'exercise', renderOp(md));
+      md.use(require('markdown-it-container'), 'question', renderOp(md));
+      md.use(require('markdown-it-container'), 'challenge', renderOp(md));
+    }
+  }
 }

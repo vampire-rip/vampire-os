@@ -9,14 +9,16 @@
 本次实验和接下来的实验课程中所用到的所有文件，我们都使用 [Git](http://www.git-scm.com/) 版本控制系统来分发。想了解更多 Git 相关的信息，请查看 [Git user’s manual](http://www.kernel.org/pub/software/scm/git/docs/user-manual.html) , 如果你以前使用过其他的版本控制系统，这里有一个非常有用的 Git 的简单介绍 [CS-Oriented overview of Git](http://eagain.net/articles/git-for-computer-scientists/)。
 
 ::: warning 有关本课程的的Git远程仓库
+
 本实验来自 MIT 的实验课程的 2018 版本，相关的内容我们已下载到本地的服务器中。请从 `环境搭建指南` 的 `下载实验工具包` 部分下载我们的 **实验所需源代码** `lab.zip` 开始实验。
 
 解压缩后，实验相关的代码在 `lab` 文件夹下。
+
 :::
 
 ### Getting Start / 开始
 
-Git允许你跟踪你所修改的代码。例如你完成了一到两个练习，想要为你的进度做个检查点，可以通过一下的指令来提交你的修改：
+Git允许你跟踪你所修改的代码。例如你完成了一到两个练习，想要为你的进度做个检查点，可以通过以下指令来提交你的修改：
 
 ```bash
 git commit -am 'my solution for lab1 exercise 9'
@@ -42,14 +44,14 @@ git commit -am 'my solution for lab1 exercise 9'
 
 不过，不巧的是这本书上的例子是用的 `NASM` 汇编器，而我们用的是 `GNU` 的汇编器。`NASM` 用的是所谓的英特尔的语法而 `GNU` 使用的是 `AT&T` 的语法。即便是表达的是相同的意思，汇编文件也会有很大的不同，至少表面上是这样，不过对于两者之间的转换是非常简单的，两者间的转换在 [Brennan’s Guide to Inline Assembly](http://www.delorie.com/djgpp/doc/brennan/brennan_att_inline_djgpp.html) 深入讲解。
 
----section exercise---
 
-**练习 1.**
+::: exercise 练习 1.
+
 熟悉 [6.828 reference materials page](http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/reference.html) 上提供的汇编语言的资料。你不需要马上阅读这部分的资料，但是实验的过程中你肯定会用这一部分资料。
 
 我们建议阅读一下 [Brenna’s Guide to Inline Assembly](http://www.delorie.com/djgpp/doc/brennan/brennan_att_inline_djgpp.html) 的 `The Sytax` 这一部分的内容。这一部分内容给出了我们将在 JOS 中与 GUN 汇编器一起使用的 AT&T 汇编语法的一个很好的（非常简要的）描述。
 
----end section---
+:::
 
 当然，x86 汇编语言的定义是根据英特尔架构的指令集合设计的，你可以在参考资料页面上看到这些内容：一个是 [80386 Programmer's Reference Manual](http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/readings/i386/toc.htm)，这个版本相较于最新的 CPU 手册更加简短，但详细的描述了我们将要在 6.828 中使用的所有 x86 处理器的特点；最新，最全面英特尔的处理器资料是 [IA-32 Intel Architecture Software Developer's Manuals](http://www.intel.com/content/www/us/en/processors/architectures-software-developer-manuals.html)，这里面包含了很多英特尔处理器的新特性，我们课程中不会讲解，但是如果你感兴趣，可以自己去了解。[AMD](http://developer.amd.com/documentation/guides/Pages/default.aspx#manuals) 也提供了一套相同的（甚至更好理解的）处理器文档。保留一份 AMD 或者英特尔架构手册为以后的日常使用，以便在以后的你想了解或者查询某些处理器的特点或者指令方便使用。
 
@@ -145,7 +147,9 @@ The target architecture is assumed to be i8086
 ```
 
 ::: warning 提示
+
 如果之前完全遵守我们的步骤，此时不应该存在任何问题。如果使用旧版代码，请按旧版文档进行操作。
+
 :::
 
 注意这一行:
@@ -171,12 +175,11 @@ The target architecture is assumed to be i8086
 
 0xFFFF0 是 BIOS（0x100000）最后 16 个字节的地址。因此，BIOS 做的第一件事是通过 jmp 跳转到在 BIOS 较前的位置。毕竟在 16 字节中能完成的工作是很有限的。
 
----section exercise---
+::: exercise 练习 2.
 
-**练习 2.**
-使用 GDB 的 `si` (Step Instruction) 指令来跟踪 ROM BIOS 中的几个指令，并且尝试这些指令是要做什么的。你可能需要查看 [Phil Storrs I/O Ports Description](http://web.archive.org/web/20040404164813/members.iweb.net.au/~pstorr/pcbook/book2/book2.htm) ，以及[6.828 reference materials page](http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/reference.html) 其他的资料。并不需要弄清楚所有的细节-仅需要先弄清楚 BIOS 工作的一个思路。
+使用 GDB 的 `si` (Step Instruction) 指令来跟踪 ROM BIOS 中的几个指令，并且尝试这些指令是要做什么的。你可能需要查看 [Phil Storrs I/O Ports Description](http://web.archive.org/web/20040404164813/members.iweb.net.au/~pstorr/pcbook/book2/book2.htm) ，以及[6.828 reference materials page](http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/reference.html) 其他的资料。并不需要弄清楚所有的细节 —— 仅需要先弄清楚 BIOS 工作的一个思路。
 
----end section---
+:::
 
 当BIOS 运行起来，他建立了一个中断描述符表，并初始化例如 VGA 设备各种变量。这就是为什么会从 QEMU 窗口上看到 **Starting SeaBIOS** 信息。
 
@@ -198,16 +201,15 @@ PC 的软盘和硬盘以 512 个字节为单位划分成区域，每个区域称
 
 要检查内存中的指令（GDB 会自动打印出马上要执行的下一个指令，但并不会显示其他指令），请使用该 `x/i` 命令。该命令的语法是 `x/Ni ADDR` ，其中 `N` 是要反汇编的连续指令的数量，`ADDR` 是要开始反汇编的存储器地址。
 
----section exercise---
+::: exercise 练习 3.
 
-**练习 3.**
 查看 [lab tools guide](http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/labguide.html)，特别是 GDB 命令部分。即使你熟悉GDB，这包括一些对操作系统工作非常有用且深奥 GDB 命令。
 
 在地址 `0x7c00` 设置断点，这是引导扇区将被加载的位置。继续执行直到那个断点。跟踪 `boot/boot.S` 中的代码，使用源代码和反汇编文件 `obj/boot/boot.asm` 来跟踪你在哪里。还可以使用 GDB 中的 `x/i` 命令来反汇编引导加载程序中的指令序列，并将原始引导加载程序源代码与 `obj/boot/boot.asm` 和 GDB 中的反汇编进行比较。
 
 在 `boot/main.c` 中跟踪到 `bootmain()`，然后进入 `readsect()`。识别与 `readsect()` 中的每个语句相对应的确切的汇编指令。完成对 `readsect()` 其余部分跟踪，并回到 `bootmain()` ，并找到用来从盘读取内核其余部分的 for 循环的开始和结束的位置。找出循环完成后运行的代码，在那里设置一个断点，并继续执行到该断点。然后再走完 `bootloader` 程序的其余部分。
 
----end section---
+:::
 
 确保你可以回答以下问题：
 
@@ -220,9 +222,8 @@ PC 的软盘和硬盘以 512 个字节为单位划分成区域，每个区域称
 
 现在我们将进一步详细介绍在 `boot/main.c` 中 `bootloader` 程序的 C 语言部分。在这之前，需要回顾一些 C 编程的基础知识。
 
----section exercise---
+::: exercise 练习 4.
 
-**练习 4.**
 阅读 C 中的指针编程。C 语言的最佳参考是 Brian Kernighan 和 Dennis Ritchie（被称为 K＆R）的 [C编程语言（中文翻译版）](http://video.mobisys.cc/materials/tools/CProgrammingLanguageCN.pdf)。
 
 通读 K＆R 书中 5.1（指针和地址）到 5.5（字符指针和函数）的内容。然后下载 [pointers.c](http://video.mobisys.cc/materials/tools/pointers.c) 的代码，运行它，并确保你了解所有打印值的来源。特别是，请确保你理解第 1 行和第 6 行中指针指向哪里的地址，第 2 行到第 4 行的值是如何被写入的，以及为什么第 5 行中打印的值看起来像是错乱的。
@@ -231,7 +232,7 @@ PC 的软盘和硬盘以 512 个字节为单位划分成区域，每个区域称
 
 警告： 除非你已经彻底掌握了 C 语言，否则不要跳过这段阅读练习。如果你真的不了解 C 中的指针，那么在后续的实验中你将会遭受无法忍受的痛苦，最后会很难理解他们。相信我们，你肯定不想知道 **很难** 到底是多难的。
 
----end section---
+:::
 
 为了能够理解 `boot/main.c`，你需要知道什么是 ELF 二进制文件。当你编译和链接 C 程序（如 JOS 内核）时，编译器会将每个 C 源文件（`.c`）转换为对象文件（`.o`），其中包含了以硬件预期的二进制格式编码的汇编语言指令。链接器随后将所有编译的对象文件合并成一个二进制镜像文件，如 `obj/kern/kernel`，在这种情况下，我们把他叫作是 ELF 格式的二进制形式，代表 `Executable and Linkable Format`（可执行和可链接格式）。
 
@@ -277,12 +278,11 @@ objdump -x obj/kern/kernel
 
 BIOS 将引导扇区加载到内存地址 `0x7C00` 处，这个地址是引导扇区的加载地址。这也是引导扇区开始执行的地方，所以这也是它的链接地址。我们通过在 `boot/Makefrag` 中利用参数 `-Ttext 0x7C00` 传递给链接器，以设置链接地址。有了这个配置，链接器将在生成的代码中产生正确的内存地址。
 
----section exercise---
+::: exercise 练习 5.
 
-**练习 5.**
 跟踪 `bootloader` 程序的前几个指令，找到开始使用链接地址的第一条指令，即，如果你使用了错误的链接地址，那么执行到这里的时候就必须要停下来，否则就会发生错误。然后将 `boot/Makefrag` 中的链接地址更改为一个错误的地址，运行 `make clean`，用 `make` 命令重新编译实验，然后再次跟踪到引导加载程序，看看会发生什么。不要忘了改变链接地址后要再次执行 `make clean`！
 
----end section---
+:::
 
 再来看一下内核的加载和链接地址。与 `bootloader` 程序不同，这两个地址不一样：内核告诉引导加载程序将其加载到低地址（1兆字节）的内存中，但它希望从高地址执行。我们将在下一节中介绍我们如何实现这一过程的。
 
@@ -294,14 +294,13 @@ objdump -f obj/kern/kernel
 
 你现在应该能够了解 `boot/main.c` 的意义了，这是一个最简单的 ELF 加载程序。它将内核的每个部分从磁盘读取到存储区的加载地址，然后跳转到内核的入口点。
 
----section exercise---
+::: exercise 练习 6.
 
-**练习 6.**
 我们可以使用 GDB 的 x 命令检查内存。 [GDB manual](http://sourceware.org/gdb/current/onlinedocs/gdb_9.html#SEC63) 中详细讲解了命令的用法，但就目前而言，知道命令 `x/Nx ADDR` 能够在 `ADDR` 处打印 `N` 个存储器字就足够了。（请注意，命令中的 `x` 均为小写。） 警告：字的大小不是通用标准。在 GNU 程序集中，一个字是两个字节（`xorw` 中的 `w`，代表字，表示 2 个字节）。
 
 复位机器（退出 `QEMU / GDB` 并再次启动）。在 BIOS 进入引导加载程序的那一刻停下来，检查内存中 `0x00100000` 地址开始的 8 个字的内容，然后再次运行，到 `bootloader` 进入内核的那一点再停下来，再次打印内存 `0x00100000` 的内容。为什么这 8 个字的内容会有所不同？第二次停下来的时候，打印出来的内容是什么？（你不需要使用QEMU来回答这个问题，思考即可）
 
----end section---
+:::
 
 ## Part3: 内核
 
@@ -319,14 +318,13 @@ objdump -f obj/kern/kernel
 
 现在，我们将映射前 `4MB` 的物理内存，这足以让我们开始运行。我们在 `kern/entrypgdir.c` 中使用手写的，静态初始化的页面目录和页面表来执行此操作。在本实验中，你不必了解这个工作的细节，只需要知道它实现的效果。直到 `kern/entry.S` 设置 `CR0_PG` 标志，内存引用被视为物理地址（严格来说，它们是线性地址，但是 `boot/boot.S` 中把线性地址和物理地址设置成了一致的，我们后面也不会再改变这个配置了）。一旦设置了 `CR0_PG`，内存引用就变成了虚拟地址，虚拟内存硬件转换为物理地址。`entry_pgdir` 将 `0xf0000000` 至 `0xf0400000` 范围内的虚拟地址转换为物理地址 `0x00000000` 至 `0x00400000`，同时也将虚拟地址 `0x00000000` 至 `0x00400000` 转换为物理地址 `0x00000000` 至 `0x00400000`。任何不在这两个范围之一的虚拟地址将导致硬件异常，因为我们还没有设置中断处理，将导致 `QEMU` 打印出机器状态并退出（如果你没有使用我们实验提供的带补丁的 QEMU，则会无休止地重新启动）。
 
----section exercise---
+::: exercise 练习 7.
 
-**练习 7.**
 使用 QEMU 和 GDB 跟踪到 JOS 内核并停止在 `movl％eax，％cr0`。 查看内存中在地址 `0x00100000` 和 `0xf0100000` 处的内容。 下面，使用 GDB 命令 `stepi` 单步执行该指令。 指令执行后，再次检查 `0x00100000` 和 `0xf0100000` 的内存。 确保你明白刚刚发生的事情。
 
 新映射建立后的第一条指令是什么，如果映射配置错误，它还能不能正常工作？ 注释掉 `kern/entry.S` 中的 `movl％eax，％cr0`，再次追踪到它，看看你的猜测是否正确。
 
----end section---
+:::
 
 ### 格式化打印到控制台
 
@@ -334,12 +332,11 @@ objdump -f obj/kern/kernel
 
 阅读 `kern/printf.c`，`lib/printfmt.c` 和 `kern/console.c`，并确保你了解他们的关系。以后的实验室会清楚，为什么 `printfmt.c` 位于 `lib` 目录中。
 
----section exercise---
+::: exercise 练习 8.
 
-**练习 8.**
 我们省略了一小段代码 —— 使用 `％o`形式的模式打印八进制数字所需的代码。查找并补全这个代码片段。
 
----end section---
+:::
 
 确保你现在能够回答下面的问题：
 
@@ -379,36 +376,33 @@ objdump -f obj/kern/kernel
 
 +  假设 GCC 更改了它的调用约定，以声明的顺序将参数压入栈中，这样会使最后一个参数最后被压入。 你将如何更改 `cprintf` 或其接口，以便仍然可以传递一个可变数量的参数？
 
----section challenge---
+::: challenge 挑战！
 
-**挑战！**
 增强控制台的能力以允许以打印不同颜色的文本。传统的方法是使它解析嵌入在待打印的文本字符串中的 ANSI 转义序列，但是你可以使用任何你喜欢的机制。 在实验的 [参考内容](http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/reference.html) 和网络上其他地方有对 VGA 显示硬件进行编程的大量信息。 如果你真的喜欢挑战，也可以尝试将 VGA 硬件切换到图形模式，并使控制台将文本绘制到图形帧缓冲区上。
 
----end section---
+:::
 
 ### 栈
 
 在本实验的最后一个练习中，我们将更详细地探讨 C 语言在 x86 上使用栈的方式，并编写一个新的内核监视器函数，该函数能够实现栈的回溯打印：一个保存引导到当前执行点的嵌套调用指令的指令指针（IP）值的列表。
 
----section exercise---
+::: exercise 练习 9.
 
-**练习 9.**
 确定内核在哪里完成了栈的初始化，以及栈所在内存的确切位置。内核如何为栈保留空间？栈指针初始化时指向的是保留区域的哪一端？
 
----end section---
+:::
 
 x86 栈指针（esp寄存器）指向栈当前正在使用的最低地址位置。所有低于这个位置的栈保留区域都是空闲的。将值压入到栈时，首先会将栈指针的值减少，然后将值写入栈指针指向的位置。 从栈中弹出一个值，需要读取栈指针指向的值，然后增加栈指针。 在 32 位模式下，栈只能保存 32 位值，而 esp 总是可以被 4 整除。各种 x86 指令（如函数调用）都是与硬件绑定的，会固定使用栈指针寄存器来操作数据。
 
 ebp（基地址指针）寄存器与栈的关联关系来自于软件设计的传统。在进入 C 函数时，函数的前导代码通常会将之前的函数的基地址寄存器（ebp）压入堆栈，然后在函数的运行过程中会将当前的 esp 值复制到 ebp 中。 如果程序中的所有函数都遵循这一约定，那么在程序执行期间的任何给定点，可以通过遵循保存的 ebp 指针链来精确地还原出整个 ebp 的保存链，并用于确定出整个函数的调用序列。这种特性特别有用，例如，因为传递错误的参数，一个特定的函数导致 assert 失败或 panic，但你不确定谁传递了错误的参数。 栈回溯可以让你找到有问题的函数。
 
----section exercise---
+::: exercise 练习 10.
 
-**练习 10.**
 熟悉 x86 上 C 语言函数的调用约定，在 `obj/kern/kernel.asm` 中找到 `test_backtrace` 函数的地址，在其中设置一个断点，并检查在内核启动后每次这个函数被调用时会发生什么。 每一级的 `test_backtrace` 在递归调用时，会在栈上压入多少个 32 位的字，这些字的内容是什么？
 
 请注意，为了使此练习正常工作，你应该使用工具页中修改过QEMU。 否则，你必须手动将所有断点和内存地址转换为线性地址。
 
----end section---
+:::
 
 上述练习应该能够提供实现栈回溯函数所需的信息，我们将它命名为 `mon_backtrace()`。 这个函数的原型已经在 `kern/monitor.c` 中定义好了。你可以完全在 C 语言中读取 ebp，但你也可以用 `inc/x86.h` 中的 `read_ebp()` 函数。 你还必须将这个新功能添加到内核监视器的命令列表中，以便用户可以通过命令交互式地调用它。
 
@@ -433,22 +427,20 @@ Stack backtrace:
 
 虽然大多数 C 程序不需要在指针和整数之间进行转换，但操作系统经常这么做。 每当你看到一个内存地址的加法操作时，需要想清楚是一个整数加法还是一个指针加法，并确保要相加的值是不是要乘以每个对象的大小。
 
----section exercise---
+::: exercise 练习 11.
 
-**练习 11.**
 实现如上所述的回溯功能。请使用与示例中相同的格式，否则打分脚本将会出错。当你认为你的工作正确的时候，运行 `make grade` 来看看它的输出是否符合我们的打分脚本的期待，如果没有，修正发现的错误。在你成功提交实验 1 的作业后，欢迎你以任何你喜欢的方式更改回溯功能的输出格式。
 
 如果你使用 `read_ebp()`，请注意，GCC 可能会生成优化后的代码，导致在 `mon_backtrace()` 的函数前导代码之前调用 `read_ebp()`，从而导致堆栈跟踪不完整（最近的函数调用的堆栈帧丢失）。~~我们可以尝试禁用优化以避免此重新排序的优化模式~~ 如果你遇到了这个问题，不需要解决它，只要能够解释它即可。你可能需要检查 `mon_backtrace()` 的汇编代码，并确保在函数前导代码之后调用的 `read_ebp()`。
 
----end section---
+:::
 
 此时，你的 `backtrace` 函数应该为你提供调用 `mon_backtrace()` 的函数在栈上的地址。但是，在实践中，你经常想知道与这些地址对应的函数名称。 例如，你可能想知道哪些函数可能包含导致内核崩溃的错误。
 
 为了帮助你实现此功能，我们提供了函数 `debuginfo_eip()`，该函数能够在符号表中查找 `eip` 并返回该地址的调试信息。这个函数在 `kern/kdebug.c` 中定义。
 
----section exercise---
+::: exercise 练习 12.
 
-**练习 12.**
 修改你的堆栈回溯功能，为每个 `eip` 显示与该 `eip` 对应的函数名称，源文件名和行号。
 
 在 `debuginfo_eip` 中 `__STAB_ *` 来自哪里？这个问题的答案可能很长。为了帮助你找到答案，以下是你可能想要做的一些事情：
@@ -483,7 +475,7 @@ K>
 
 你可能会发现回溯中少了一些函数。 例如，你可能会看到对 `monitor()` 的调用，但不会看到对 `runcmd()` 的调用。 这是因为编译器内联一些函数调用。 其他优化可能会导致你看到的行号和代码中的不太一样。 如果你从 `GNUMakefile` 中删除 `-O2` ，那么回溯可能会更容易理解一些（但内核运行速度会更慢）。
 
----end section---
+:::
 
 到了这里，Lab 1 就结束了。在实验目录中，使用 `git commit <?后面是什么>` 来提交你的更改。
 
@@ -505,6 +497,9 @@ HTML 编译： [StackEdit](https://stackedit.io/)
 ```javascript
 Handlebars.registerHelper('transform', function (options) {
   var result = options.fn(this);
+  var regex = /(<p>::: )([\w]+) ([^<\n]+?)(<\/p>\n)(.+?)(\n<p>:::<\/p>)/gms;
+  var replace = '<section class="custom-block $2" type="$2"><strong>$3</strong>$5</section>';
+  result = result.replace(regex, replace)
   result = result.replace(/<p>—section (.+?)—<\/p>/g, '<section type="$1">')
   result = result.replace(/<p>—end section—<\/p>/g, '</section>')
   return result;

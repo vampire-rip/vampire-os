@@ -52,12 +52,11 @@ Lab4 包含一些新的代码文件，你应当在开始之前先浏览它们：
 
 处理器通过 映射于内存的输入输出 (memory-mapped I/O, MMIO) 来访问它的 LAPIC。在 MMIO 模式中，物理内存的一部分被硬连线于一些 I/O 设备的寄存器上（译注：I/O 设备的寄存器和内存被映射在物理内存的一些区域）， 所以通常用于访问内存的存取指令也可以同样用于访问设备寄存器。在之前的实验中，你已经在物理内存地址 0xA0000 的位置遇到过一个 IO hole（我们通过它写入 VGA 的显示缓冲区）。LAPIC 被连接在物理地址 0xFE000000 (距 4GB 还有 32MB 的位置) 的 I/O hole 上，这个地址对我们当前在 KERNBASE 上直接映射来说太高了， 不过 JOS 虚拟内存映射表 在 MMIOBASE 位置留了 4MB 的空隙，所以我们可以将这样的设备映射到这里。 之后的实验将引入更多的 MMIO 区域，因此，你将需要编写一个简单的函数，为这一区域分配内存，并将设备内存映射在上面。
 
----section exercise---
+::: exercise 练习 1.
 
-**练习 1.**
 实现在 `kern/pmap.c` 中的 `mmio_map_region` 方法。你可以看看 `kern/lapic.c` 中 `lapic_init` 的开头部分，了解一下它是如何被调用的。你还需要完成接下来的练习，你的 `mmio_map_region` 才能够正常运行。
 
----end section---
+:::
 
 ### 应用处理器（AP）引导程序
 
@@ -67,20 +66,18 @@ Lab4 包含一些新的代码文件，你应当在开始之前先浏览它们：
 
 而后，`boot_aps()` 通过发送 *STARTUP IPI* （interprocesser interrupt, 处理器间中断） 并提供一个初始 CS:IP （AP 入口代码的位置，我们这里是 `MPENRTY_PADDR` ） 给对应 AP 的 LAPIC 单元 ，依次激活每个 AP。 `kern/mpentry.S` 中的入口代码和 `boot/boot.S` 中的十分相似。在一些简单的处理后，它将 AP 置于保护模式，并启用页表， 接着调用 C 语言的设置例程 `mp_main()` （也在 `kern/init.c` 中）。`boot_aps()` 会等待 AP 在 它的 `struct CpuInfo` 中设置 `cpu_status` 字段为 `CPU_STARTED` 后才开始唤醒下一个 AP。
 
----section exercise---
+::: exercise 练习 2.
 
-**练习 2.**
 阅读 `kern/init.c` 中的 `boot_aps()` 和 `mp_main()` 方法，和 `kern/mpentry.S` 中的汇编代码。确保你已经明白了引导 AP 启动的控制流执行过程。接着，修改你在 `kern/pmap.c` 中实现过的 `page_init()` 以避免将 `MPENTRY_PADDR` 加入到 free list 中，以使得我们可以安全地将 AP 的引导代码拷贝于这个物理地址并运行。你的代码应当通过我们更新过的 `check_page_free_list()` 测试，不过可能仍会在我们更新过的 `check_kern_pgdir()` 测试中失败，我们接下来将解决这个问题。
 
----end section---
+:::
 
----section question---
+::: question 问题 1.
 
-**问题 1.**
-+ 逐行比较 `kern/mpentry.S` 和 `boot/boot.S`。牢记 `kern/mpentry.S` 和其他内核代码一样也是被编译和链接在 `KERNBASE` 之上运行的。那么，`MPBOOTPHYS` 这个宏定义的目的是什么呢？为什么它在 `kern/mpentry.S` 中是必要的，但在 `boot/boot.S` 却不用？换句话说，如果我们忽略掉 `kern/mpentry.S` 哪里会出现问题呢？
+逐行比较 `kern/mpentry.S` 和 `boot/boot.S`。牢记 `kern/mpentry.S` 和其他内核代码一样也是被编译和链接在 `KERNBASE` 之上运行的。那么，`MPBOOTPHYS` 这个宏定义的目的是什么呢？为什么它在 `kern/mpentry.S` 中是必要的，但在 `boot/boot.S` 却不用？换句话说，如果我们忽略掉 `kern/mpentry.S` 哪里会出现问题呢？
 提示：回忆一下我们在 Lab 1 讨论的链接地址和装载地址的不同之处。
 
----end section---
+:::
 
 #### CPU 私有状态和初始化
 
@@ -101,19 +98,17 @@ Lab4 包含一些新的代码文件，你应当在开始之前先浏览它们：
 + 每个CPU的系统寄存器
   所有寄存器，包括系统寄存器，都是CPU私有的，因此，初始化这些寄存器的指令，例如，`lcr3()`，`ltr()`，`lgdt()`，`lidt()` 等，都应当在每个 CPU 中执行一次。 函数 `env_init_percpu()` 和 `trap_init_percpu()` 就是为了这一目的而定义的。
 
----section exercise---
+::: exercise 练习 3.
 
-**练习 3.**
 修改位于 kern/pmap.c 中的 `mem_init_mp()`，将每个CPU堆栈映射在 `KSTACKTOP` 开始的区域，就像 `inc/memlayout.h` 中描述的那样。每个堆栈的大小都是 `KSTKSIZE` 字节，加上 `KSTKGAP` 字节没有被映射的 守护页 。现在，你的代码应当能够通过我们新的 `check_kern_pgdir()` 测试了。
 
----end section---
+:::
 
----section exercise---
+::: exercise 练习 4.
 
-**练习 4**
 位于 `kern/trap.c` 中的 `trap_init_percpu()` 为 BSP 初始化了 TSS 和 TSS描述符，它在 Lab 3 中可以工作，但是在其他 CPU 上运行时，它是不正确的。修改这段代码使得它能够在所有 CPU 上正确执行。（注意：你的代码不应该再使用全局变量 ts。）
 
----end section---
+:::
 
 当你完成了上面的练习，在 QEMU 中使用 4 个 CPU 运行 JOS，`make qemu CPUS=4` 或者 `make qemu-nox CPUS=4`， 你应当能看到以下输出：
 
@@ -141,25 +136,22 @@ SMP: CPU 3 starting
 + `trap()` 中，从用户模式陷入(trap into)内核模式之前获得锁。你可以通过检查 `tf_cs` 的低位判断这一 trap 发生在用户模式还是内核模式（译注：Lab 3 中曾经使用过这一检查）
 + env_run() 中，恰好在 **回到用户进程之前** 释放内核锁。不要太早或太晚做这件事，否则可能会出现竞争或死锁。
 
----section exercise---
+::: exercise 练习 5.
 
-**练习 5.**
 在上述提到的位置使用内核锁，加锁时使用 `lock_kernel()`， 释放锁时使用 `unlock_kernel()`。
 
----end section---
+:::
 
 如何测试你的代码是正确的呢？现在还不行。你将能够在做完下一个练习，实现调度器后测试你的代码。
 
----section question---
+::: question 问题 2.
 
-**问题 2.**
 看起来使用全局内核锁能够保证同一时段内只有一个 CPU 能够运行内核代码。既然这样，我们为什么还需要为每个 CPU 分配不同的内核堆栈呢？请描述一个即使我们使用了全局内核锁，共享内核堆栈仍会导致错误的情形。
 
----end section---
+:::
 
----section challenge---
+::: challenge 挑战！
 
-**挑战！**
 全局内核锁很简单，而且用起来很容易。然而，它阻止了内核模式的所有可能的并发。现代操作系统使用不同的锁来保护它们共享部分中的不同部分。有一种方法叫做 fine-grained locking，这种方法可以显著地提高运行效率，但是却更难实现，而且容易出错。如果你很勇敢，抛弃全局内核锁去拥抱 JOS 中的并发吧！ 有哪些数据需要加锁保护由你来决定，作为提示，在JOS内核中你可能需要考虑在以下共享部分加自旋锁来确保排他访问：
 
   + 页面分配器(page allocator)
@@ -167,7 +159,7 @@ SMP: CPU 3 starting
   + 调度器(scheduler) （译注：下一个练习实现）
   + 进程间通信状态(inter-process communication state)，你将在 Part C 实现它。
 
----end section---
+:::
 
 ### 轮转调度算法
 
@@ -176,9 +168,8 @@ SMP: CPU 3 starting
   + `sched_yield()` 绝不应当在两个CPU上同时运行同一进程。它可以分辨出一个进程正在其他CPU（或者就在当前CPU）上运行，因为这样的进程处于 `ENV_RUNNING` 状态。
   + 我们已经为你实现了新的系统调用 `sys_yield()`，用户进程可以调用它来触发内核的 `sched_yield()` 方法，自愿放弃 CPU，给其他进程运行。
 
----section exercise---
+::: exercise 练习 6.
 
-**练习 6.**
 按照以上描述，实现 `sched_yield()` 轮转算法。不要忘记修改你的 `syscall()` 将相应的系统调用分发至 `sys_yield() `（译注：以后还要添加新的系统调用，同样不要忘记修改 `sys_yield()`）。
 
 确保你在 `mp_main` 中调用了 `sched_yield()`。
@@ -204,35 +195,31 @@ SMP: CPU 3 starting
 
 如果你此时使用 `CPUS=1`，所有的用户进程应当成功运行并退出。使用超过 1 个 CPU 在没有更多的用户进程可以运行时，可能会导致发生 General Protection 或者 Kernel Page Fault，因为我们没有处理时钟中断。我们将会在下面修复这个问题。
 
----end section---
+:::
 
----section question---
+::: question 问题 3.
 
-**问题 3.**
 在你实现的 `env_run()` 中你应当调用了 `lcr3()`。在调用 `lcr3()` 之前和之后，你的代码应当都在引用 变量 `e`，就是 `env_run()` 所需要的参数。 在装载 `%cr3` 寄存器之后， MMU 使用的地址上下文立刻发生改变，但是处在之前地址上下文的虚拟地址（比如说 `e` ）却还能够正常工作，为什么 `e` 在地址切换前后都可以被正确地解引用呢？
 
----end section---
+:::
 
----section question---
+::: question 问题 4.
 
-**问题 4.**
 无论何时，内核在从一个进程切换到另一个进程时，它应当确保旧的寄存器被保存，以使得以后能够恢复。为什么？在哪里实现的呢？
 
----end section---
+:::
 
----section challenge---
+::: challenge 挑战！
 
-**挑战！**
 为内核加入一个不那么平凡的调度算法吧。比如，固定优先级调度器，允许每个进程都获得一个优先级，保证拥有较高优先级的进程总是优先于低优先级进程运行。如果你觉得，这也太没挑战性了，那就试试实现一个 Unix 样式的可变优先级调度器，或者实现一个 [`lottery scheduler`](https://en.wikipedia.org/wiki/Lottery_scheduling) ，或者 [`stride scheduler`](https://en.wikipedia.org/wiki/Stride_scheduling)（你可能得谷歌一下它们是什么）。写几个测试程序，来验证你的调度算法正确工作（换句话说，正确的进程在正确的顺序被执行）。在完成这次实验的 Part B 和 Part C 的 `fork()` 函数之后，这种测试程序可能更容易写出来。
 
----end section---
+:::
 
----section challenge---
+::: challenge 挑战！
 
-**挑战！**
 目前，JOS 内核还不允许应用程序使用 x86 处理器的 x87 浮点运算单元(FPU)、MMX 指令以及 流式 SIMD 扩展(SSE)。拓展 Env 结构体，来为处理器提供一个位置记录浮点运算状态，并拓展上下文切换那一部分的代码，以在进程切换时正确保存这个状态。`FXSAVE` 和 `FSRSTR` 这两个指令在这里可能非常有用，但是因为它们是在近期才被引入的，所以可能不会出现在旧的 i386 用户手册中。写一个用户模式的测试程序，进行浮点运算。这样是不是很酷？
 
----end section---
+:::
 
 ## 用于创建进程的系统调用
 
@@ -266,19 +253,17 @@ UNIX 提供了 `fork()` 系统调用作为创建进程的原型，UNIX 的 `fork
 
 我们在测试程序 `user/dumbfork.c` 中提供了一种非常原始的 Unix 样式的 `fork()`。它使用上述系统调用来创建并运行一个子进程，子进程的地址空间就是父进程的拷贝。接着，这两个进程将会通过上一个练习中实现的系统调用 `sys_yield` 来回切换。 父进程在切换 10 次后退出，子进程切换 20 次。
 
----section exercise---
+::: exercise 练习 7.
 
-**练习 7.**
 在 `kern/syscall.c` 中实现上面描述的系统调用。你将需要用到在 `kern/pmap.c` 和 `kern/env.c` 中定义的多个函数，尤其是 `envid2env()`。此时，无论何时你调用 `envid2env()`，都应该传递 1 给 `checkperm` 参数。确定你检查了每个系统调用参数均合法，否则返回 `-E_INVAL`。 用 `user/dumbfork` 来测试你的 JOS 内核，在继续前确定它正常的工作。（`make run-dumbfork`）
 
----end section---
+:::
 
----section challenge---
+::: challenge 挑战！
 
-**挑战！**
 添加一些额外的系统调用，来读取并设置一个已有进程的全部状态。然后，再来实现一个用户模式进程，它派生一个子进程，让子进程运行一会儿（比如，调用几次 `sys_yield()`），然后为子进程做一个完整的快照（检查点）。再让子进程运行一会儿，然后，将子进程的所有状态还原到之前的检查点，并让子进程从检查点继续运行。这样，你就实现了从一个状态 "重放" 子进程的执行过程。让子进程进行一些类似 `sys_cgetc()` 或 `readline()` 这种和用户交互的操作，以确保能够观测和修改它的执行状态，并确保你的 检查点/重放 功能能够让子进程 "选择性失忆"，忘掉它在某个特定时间后做的全部事情。
 
----end section---
+:::
 
 到这里，你完成了本次实验的 Part A，用 `make grade` 来检查它， ~~并像通常一样用 `make handin` 提交~~。 如果你想知道为什么没能通过一个特定的测试，运行 `./grade-lab4 -v`，这样你能够看到内核的编译输出和 QEMU 对每个测试的输出，直到一个测试没能通过，脚本会在此停止，这时你可以打开 `jos.out` 并看到内核输出了什么（译注：即使不这么做，评测脚本也会自动保存每次评测失败时的 JOS 输出）。
 
@@ -306,12 +291,11 @@ It's common to set up an address space so that page faults indicate when some ac
 
 为了处理自己的缺页，用户进程需要向 JOS 内核注册一个 *page fault handler entry point* 缺页处理函数入口点。 用户进程通过我们新引入的 `sys_env_set_pgfault_upcall` 系统调用注册它的缺页处理入口。我们也在 Env 结构体中添加了一个新的成员，`env_pgfault_upcall`，来记录这一信息。
 
----section exercise---
+::: exercise 练习 8.
 
-**练习 8.**
 实现 `sys_env_set_pgfault_upcall` 系统调用。因为这是一个 "危险" 的系统调用，不要忘记在获得目标进程信息时启用权限检查。
 
----end section---
+:::
 
 #### 用户进程的通常堆栈和异常堆栈
 
@@ -350,31 +334,28 @@ JOS 用户异常堆栈大小也是一个页面，栈顶被定义在虚拟地址 
 
 如果用户进程在缺页发生时已经运行在异常堆栈上了，那么缺页处理函数处理自己的缺页异常。在这种情况下，你应当就在当前的 `tf->tf_esp` 上构造一个新的 栈帧 (stack frame) 而不是从 `UXSTACKTOP` 开始构造。你应当首先压入一个空的32位长的值，然后再压入 `struct UTrapframe`。
 
----section exercise---
+::: exercise 练习 9.
 
-**练习 9.**
 实现在 `kern/trap.c` 中的 `page_fault_handler` 方法，使其能够将缺页分发给用户模式缺页处理函数。确认你在写入异常堆栈时已经采取足够的预防措施了。（如果用户进程的异常堆栈已经没有空间了会发生什么？）
 
----end section---
+:::
 
 #### 用户模式缺页入口点
 接下来，你需要实现汇编例程(routine)，来调用 C 语言的缺页处理函数，并从异常状态返回到一开始造成缺页中断的指令继续执行。**这个汇编例程** 将会成为通过系统调用 `sys_env_set_pgfault_upcall()` 向内核注册的处理函数。
 
----section exercise---
+::: exercise 练习 10.
 
-**练习 10.**
 实现在 `lib/pfentry.S` 中的 `_pgfault_upcall` 例程。返回到一开始运行造成缺页的用户代码这一部分很有趣。你在这里将会直接返回，而不是通过内核。最难的部分是同时调整堆栈并重新装载 EIP。
 
----end section---
+:::
 
 最终，你需要实现 C 用户调用库这边的用户模式缺页处理机制。
 
----section exercise---
+::: exercise 练习 11.
 
-**练习 11.**
 完成在 `lib/pgfault.c` 中的 `set_pgfault_handler()` 。
 
----end section---
+:::
 
 #### 测试
 
@@ -409,12 +390,11 @@ JOS 用户异常堆栈大小也是一个页面，栈顶被定义在虚拟地址 
 
 确保你清楚为什么 `user/faultalloc` 和 `user/faultallocbad` 的表现不同。
 
----section challenge---
+::: challenge 挑战！
 
-**挑战！**
 拓展你的内核，让所有用户模式代码产生的处理器异常（而不仅仅是缺页），都可以分发给用户模式异常处理函数来处理。写一个测试程序来测试一下不同用户模式异常的处理是否能正常工作，比如，除零，一般保护错，或者错误的操作码。
 
----end section---
+:::
 
 ### 实现写时复制的 Fork
 
@@ -443,9 +423,8 @@ JOS 用户异常堆栈大小也是一个页面，栈顶被定义在虚拟地址 
 
 用户模式的 `lib/fork.c` 代码必须查询进程的页表来执行上面提到的一些操作（例如，得知一个页面的 PTE 是不是被标记为了 `PTE_COW` ）。内核将进程的页表映射在了 UVPT 就是为了这一目的。它使用了一种 [聪明的映射技巧](http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/labs/lab4/uvpt.html) 使得用户代码查询 PTE 变得更简单。 `lib/entry.S` 设置了 `uvpt` 和 `uvpd` 所以你可以很容易地在 `lib/fork.c` 中找到页表的信息。
 
----section exercise---
+::: exercise 练习 12.
 
-**练习 12.**
 实现在 `lib/fork.c` 中的 `fork`，`duppage` 和 `pgfault`。 用 `forktree` 程序来测试你的代码(`make run-forktree`)。它应当产生下面的输出，其中夹杂着 **new env**, **free env** 和 **exiting gracefully** 这样的消息。下面的这些输出可能不是按照顺序的，进程ID也可能有所不同：
 
     1000: I am ''
@@ -464,21 +443,19 @@ JOS 用户异常堆栈大小也是一个页面，栈顶被定义在虚拟地址 
     1005: I am '111'
     1006: I am '101'
 
----end section---
+:::
 
----section challenge---
+::: challenge 挑战！
 
-**挑战!**
 实现一个共享内存的派生，我们叫它 `sfork()` 好了。这个版本的派生应该让父进程和子进程共享他们所有的内存页面（所以，在一个进程中写内存，在另一个进程中也会反映出来），不过栈这一页所使用的内存区域例外，这一区域应该被当做 copy-on-write 的。修改 `user/forktree.c` 来使用新的 `sfork()` 而不是以前的 `fork()`。当你在 Part C 完成了 IPC 之后，再试试用 `sfork()` 来运行 `user/pingpongs`。你大概必须找一种新的方式才能使 `thisenv` 这个全局指针正常工作了。
 
----end section---
+:::
 
----section challenge---
+::: challenge 挑战！
 
-**挑战!**
 你实现的 fork 也许调用了太多的系统调用。在 x86 中，通过中断在内核和用户模式中切换的代价可不小。试着改一改系统调用接口，让它能一次性地做很多很多系统调用。接下来，修改一下我们的 fork()，让它来使用这个新的接口。测一测，通过你新实现的 fork，到底快了多少。你可以粗略地通过算一算调用 int 0x30 需要多长时间、你的新实现少调用了多少 int 0x30、访问 TSS 栈是不是也很耗时等等这些类似的方法来回答这个问题。另外，你也可以在真正的硬件上跑一跑你的代码，做做评测。可以参考一下 IA32 手册上的 RDTSC 指令，这一指令用来统计自上次处理器重置时消耗的时钟周期数目。QEMU 不会帮我们好好做这件事，它可能会用执行了多少虚拟指令或者主机上的 TSC 来糊弄我们，这些都不能反映到底需要多少的 CPU 时钟周期。
 
----end section---
+:::
 
 Part B 到此结束，你可以用 `make grade` 检查你的代码。
 
@@ -500,16 +477,15 @@ Part B 到此结束，你可以用 `make grade` 检查你的代码。
 
 你需要确保 `FL_IF` 标志位在用户进程运行时总是被设置的，以使得每当中断到达的时候，它会被传入处理器并被你的中断处理代码处理。否则，我们说中断被屏蔽(mask)了，或者说，被忽略了，直到中断被重新打开。我们已经在 bootloader 的一开始屏蔽了中断，到目前为止我们还从未重新打开它。
 
----section exercise---
+::: exercise 练习 13.
 
-**练习 13**
 修改 `kern/trapenrty.S` 和 `kern/trap.c` 来初始化一个合适的 IDT 入口，并为 IRQ 0-15 提供处理函数。接着，修改 `kern/env.c` 中的` env_alloc()` 以确保用户进程总是在中断被打开的情况下运行。
 
 当调用用户中断处理函数时，处理器从来不会将 error code 压栈，也不会检查IDT 入口的描述符特权等级 (Descriptor Privilege Level, DPL) 。此时你可能需要重新阅读一下 [80386 手册](http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/readings/i386/toc.htm) 中 9.2 这一部分，或者 [IA-32 Intel Architecture Software Developer's Manual](http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/readings/ia32/IA32-3A.pdf), Volume 3 的 5.8 章节。
 
 完成这个练习后，当你运行任何一个运行时间较长的测试程序时（比如 `make run-spin`），你应当看见内核打印硬件中断的 trap frame。因为到目前为止，虽然处理器的硬件中断已经被打开了，但 JOS 还没有处理它，所以你应该注意到，它以为这个中断发生在正在运行的用户进程，并将其销毁。最终当没有进程可以销毁的时候，JOS 会陷入内核监视器。
 
----end section---
+:::
 
 #### 处理时钟中断
 
@@ -517,14 +493,13 @@ Part B 到此结束，你可以用 `make grade` 检查你的代码。
 
 我们为你写好的 `lapic_init` 和 `pic_init` （位于 `init.c` 的 `i386_init`） 函数中设置了时钟和中断控制器来产生中断。你现在需要完成处理这些中断的代码。
 
----section exercise---
+::: exercise 练习 14.
 
-**练习14.**
 修改内核的 `trap_dispatch()` 函数，使得其每当收到时钟中断的时候，它会调用 `sched_yield()` 寻找另一个进程并运行。
 
 你现在应当能让 `user/spin` 测试程序正常工作了（译注：这里有一个文档中没有提到的细节。如果你发现时钟中断只发生一次就再也不会发生了，你应当再去看看 `kern/lapic.c`）：父进程会创建子进程，`sys_yield()` 会切换到子进程几次，但在时间片过后父进程会重新占据 CPU，并最终杀死子进程并正常退出。
 
----end section---
+:::
 
 现在，是时候做一些回溯检查 (regression testing)了。确保你启用中断后没有让曾经能够正常运行的部分（比如, `forktree`）被破坏掉。也应当试试多个 CPU，`make CPUS=2 target`（译注：使用多个 CPU 有概率导致 `user/spin` 无法通过测试 可以想一下为什么？）。现在你应该能够通过 `stresssched` 这个测试程序了。试试运行 make grade 看看是不是这样。你应该能够获得这个实验的 65/75 分了（译注：应该是 65/80）。
 
@@ -562,9 +537,8 @@ Part B 到此结束，你可以用 `make grade` 检查你的代码。
 
 #### 实现进程间通信
 
----section exercise---
+::: exercise 练习 15.
 
-**练习 15.**
 实现 `kern/syscall.c` 中的 `sys_ipc_recv` 和 `sys_ipc_try_send`。在实现它们前，你应当读读两边的注释，因为它们需要协同工作。当你在这些例程中调用 `envid2env` 时，你应当将 `checkperm` 设置为 0，这意味着进程可以与任何其他进程通信，内核除了确保目标进程 ID 有效之外，不会做其他任何检查。
 
 接下来在 `lib/ipc.c` 中实现 `ipc_recv` 和 `ipc_send`。
@@ -573,35 +547,31 @@ Part B 到此结束，你可以用 `make grade` 检查你的代码。
 
 `user/primes.c` 用来创建子进程和通信的代码读起来可能很有趣。（译注：可能因为 `user/primes` 的输出过多，有时无法从 QEMU 输出串口读取全部的输出，测试脚本可能判定程序运行错误。多运行几次试试看？）
 
----end section---
+:::
 
----section challenge---
+::: challenge 挑战！
 
-**挑战!**
 为什么 `ipc_send` 必须要循环？调整我们的系统调用接口，让它没必要循环。确保你的实现能够正确处理多个进程同时向一个进程发消息的情况。
 
----end section---
+:::
 
----section challenge---
+::: challenge 挑战！
 
-**挑战!**
 素数筛这个程序只是多进程间通信的一个魔法用法。读一读 `C. A. R. Hoare, Communicating Sequential Processes, Communications of the ACM 21(8) (August 1978), 666-667`，试试实现例子中的矩阵乘法。（译注：[链接在这里](http://cs2.ist.unomaha.edu/~stanw/papers/p666-hoare.pdf)，矩阵乘法在 6.2 这个小结）
 
----end section---
+:::
 
----section challenge---
+::: challenge 挑战！
 
-**挑战!**
 最令人惊奇的利用通信来传递信息的例子之一应该就属 Doug McIlroy 的幂计算器了，在[M. Douglas McIlroy,``Squinting at Power Series,'' Software--Practice and Experience, 20(7) (July 1990), 661-683](https://swtch.com/~rsc/thread/squint.pdf) 这里。实现里面介绍的幂计算器，并算算 `sin(x+x^3)`
 
----end section---
+:::
 
----section challenge---
+::: challenge 挑战！
 
-**挑战!**
 通过实现 Liedtke 论文中的一些技术，让我们 JOS 的 IPC 机制更快一些吧。文章在这里， [Improving IPC by Kernel Design](http://dl.acm.org/citation.cfm?id=168633)。如果你觉得你还有别的什么更好的办法，也试试看？总之，请随意修改内核的系统调用 API 吧，只要还能够通过我们的打分脚本就行。
 
----end section---
+:::
 
 Part C 到这里就结束了。确保你已经通过了所有 `make grade` 测试，不要忘记把每个问题的答案和你解决的一个挑战的说明写在 `answers-lab4.txt` 中。
 
@@ -624,6 +594,9 @@ HTML 编译： [StackEdit](https://stackedit.io/)
 ```javascript
 Handlebars.registerHelper('transform', function (options) {
   var result = options.fn(this);
+  var regex = /(<p>::: )([\w]+) ([^<\n]+?)(<\/p>\n)(.+?)(\n<p>:::<\/p>)/gms;
+  var replace = '<section class="custom-block $2" type="$2"><strong>$3</strong>$5</section>';
+  result = result.replace(regex, replace)
   result = result.replace(/<p>—section (.+?)—<\/p>/g, '<section type="$1">')
   result = result.replace(/<p>—end section—<\/p>/g, '</section>')
   return result;

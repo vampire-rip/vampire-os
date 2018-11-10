@@ -41,7 +41,6 @@ Lab 3 包含一些新的源代码文件，你应该浏览一下：
 |  | exit.c	| 用户模式下 exit() 的实现 |
 |  | panic.c | 用户模式下 panic() 的实现 |
 | user/ | * |	检查 Lab 3 内核代码的各种测试程序 |
-| | |
 
 除此之外，我们在 lab2 提交过的一些源码文件在 lab3 中有所修改，可以通过 `git diff lab2` 来检查这些改动。
 
@@ -68,7 +67,6 @@ Lab 3 包含一些新的源代码文件，你应该浏览一下：
 |struct Env *envs = NULL;	|	// 所有进程 |
 |struct Env *curenv = NULL;	| // 当前正在运行的进程 |
 |static struct Env *env_free_list; | // 空闲进程链表 |
-| | |
 
 当 JOS 启动并开始运行，`envs` 指针指向一个表示系统中所有进程的 `Env` 结构体的数组。在我们的设计中， JOS 内核会支持同时运行最多 `NENV` 个活动进程，虽然通常来说，任何时候运行的进程都会远比这个少（ `NENV` 是在 `inc/env.h` 中通过 `#define` 定义的常量）。`envs` 数组在初始化后，就包含为 NENV 个进程实例分配的 Env 结构体的空间。
 
@@ -93,7 +91,6 @@ JOS 内核将所有不活动的 `Env` 结构体放在 `env_free_list` 中，这�
 |	// 地址空间 | |
 |	pde_t *env_pgdir; | // 页目录的虚拟内存地址 |
 |}; | |
-| | |
 
  `Env` 中各个字段的用处：
 
@@ -138,14 +135,13 @@ Like a Unix process, a JOS environment couples the concepts of "thread" and "add
 
 在 Lab 2 中，你通过 `mem_init()` 为 `pages[]` 数组分配了内存空间，内核通过这一数组追踪哪些页是空闲的，哪些页被占用了。现在，类似地，你需要进一步修改 `mem_init()` 来为 `Env` 结构体的数组， `envs`，分配内存。
 
----section exercise---
+::: exercise 练习 1.
 
-**练习 1.**
 修改 `kern/pmap.c` 中的 `mem_init()` 函数来 **分配** 并 **映射** `envs` 数组。这个数组恰好包含 `NENV` 个 `Env` 结构体实例，这与你分配 `pages` 数组的方式非常相似。另一个相似之处是，支持 `envs` 的内存储应该被只读映射在页表中 `UENVS` 的位置（于 `inc/memlayout.h` 中定义），所以，用户进程可以从这一数组读取数据。
 
 修改好后，`check_kern_pgdir()` 应该能够成功执行。
 
----end section---
+:::
 
 ### Creating and Runnning Environments / 创建并运行进程
 
@@ -155,9 +151,8 @@ Lab 3 的 `GNUmakefile` 在 `obj/user/` 目录生成了一些二进制映像。�
 
 在 `kern/init.c` 的 `i386_init()` 方法中，你会看到运行其中一个二进制映像的的代码。然而，用于配置用户进程的关键函数还没有完成，你需要将其补全。
 
----section exercise---
+::: exercise 练习 2.
 
-**练习 2.**  
  在 `env.c` 中，完成接下来的这些函数：
 
 + **`env_init()`** 初始化全部 `envs` 数组中的 `Env` 结构体，并将它们加入到 `env_free_list` 中。还要调用 `env_init_percpu` ，这个函数会通过配置段硬件，将其分隔为特权等级 0 (内核) 和特权等级 3（用户）两个不同的段。
@@ -174,7 +169,7 @@ Lab 3 的 `GNUmakefile` 在 `obj/user/` 目录生成了一些二进制映像。�
 
  当你在完成这些函数时，你也许会发现 cprintf 的新的 `%e` 很好用，它会打印出与错误代码相对应的描述，例如： `r = -E_NO_MEM; panic("env_alloc: %e", r);` 会 panic 并打印出 `env_alloc: out of memory`。
 
----end section---
+:::
 
  下面是直到用户代码被运行前的调用层次图，确定你明白了每一步的目的：
 
@@ -197,12 +192,11 @@ Lab 3 的 `GNUmakefile` 在 `obj/user/` 目录生成了一些二进制映像。�
 
 此时，我们在用户空间的第一个 `int $0x30` 系统调用指令时走到了死胡同：一旦处理器进入用户模式，就再也没办法回到内核态了。现在，你需要实现基本的异常和系统调用处理，使得内核有可能从用户模式代码中取回处理器的控制权。你应该做的第一件事是彻底熟悉 x86 的中断和异常机制。
 
----section exercise---
+::: exercise 练习 3.
 
-**练习 3.**  
 如果你还没有读过的话，读一读 [80386 Programmer's Manual](http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/readings/i386/toc.htm) 中的 [Chapter 9, Exceptions and Interrupts](http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/readings/i386/c09.htm) （或者 [IA-32 Developer's Manual](http://oslab.mobisys.cc/pdos.csail.mit.edu/6.828/2014/readings/ia32/IA32-3A.pdf) 的第五章）
 
----end section---
+:::
 
 在本次实验中，我们大体上是遵照 Intel 所采用的关于中断、异常或者别的什么的术语。然而，像是 exception, trap, interrupt, fault 和 abort 这样的词，在不同架构体系或者操作系统中也没有什么标准含义。即使在某个特定的架构，比如 x86，用起它们来也通常不管它们间到底有什么细微的差别。当你在本次实验之外见到它们的时候，它们的含义也许会有些许不同。
 
@@ -264,9 +258,8 @@ x86 处理器可产生的全部同步异常内部使用 0 ~ 31 作为中断向�
 
 每一个异常或者中断在 `trapentry.S` 中都应该有自己的处理函数， `trap_init()` 应该为这些处理函数初始化 IDT。每一个中断处理函数都应该在栈中建一个 `struct Trapframe` （见 `inc/trap.h` ），并且调用带一个指向 Trapframe (陷阱帧) 地址的参数的 `trap()` （在 `trap.c`）。接下来 `trap()` 就会处理这些异常，或者将其分发给特定的处理函数。
 
----section exercise---
+::: exercise 练习 4.
 
-**练习 4.**  
 编辑 `trapentry.S` 和 `trap.c`，以实现上面描述的功能。 `trapentry.S` 中的宏定义 `TRAPHANDLER` 和 `TRAPHANDLER_NOEC`，还有在 `inc/trap.h` 中的那些 `T_` 开头的宏定义应该能帮到你。你需要在 `trapentry.S` 中用那些宏定义为每一个 `inc/trap.h` 中的 trap (陷阱) 添加一个新的入口点，你也要提供 `TRAPHANDLER` 宏所指向的 `_alltraps` 的代码。你还要修改 `trap_init()` 来初始化 `IDT`，使其指向每一个定义在 `trapentry.S` 中的入口点。`SETGATE` 宏定义在这里会很有帮助。
 你的 `_alltraps` 应该
 + 将一些值压栈，使栈帧看起来像是一个 `struct Trapframe`
@@ -278,23 +271,21 @@ x86 处理器可产生的全部同步异常内部使用 0 ~ 31 作为中断向�
 
 用一些 `user` 目录下会造成异常的程序测试一下你的陷阱处理代码，比如 `user/divzero`。现在，你应该能在 `make grade` 中通过 `divzero`, `softint` 和 `badsegment` 了。
 
----end section---
+:::
 
----section challenge---
+::: challenge 挑战！
 
-**挑战！**  
 现在，无论是在 `trapentry.S` 中的 `TRAPHANDLER`，或者是配置它们的 `trap.c`中，你也许写了太多非常相似的代码了。试着整理一下。调整一下 `trapentry.S` 中的宏定义，让它自动生成一个给 `trap.c` 使用的表。注意，你可以在汇编中通过 `.text` 和 `.data` [(这是什么？)](https://en.wikipedia.org/wiki/Directive_(programming)) 来随时在代码段和数据段切换。
 
----end section---
+:::
 
----section question---
+::: question 问题
 
-**问题**  
  在 `answers-lab3.txt` 中回答下面这些问题：
 + 对每一个中断/异常都分别给出中断处理函数的目的是什么？换句话说，如果所有的中断都交给同一个中断处理函数处理，现在我们实现的哪些功能就没办法实现了？
 + 你有没有额外做什么事情让 `user/softint` 这个程序按预期运行？打分脚本希望它产生一个一般保护错(陷阱 13)，可是 `softint` 的代码却发送的是 `int $14`。*为什么* 这个产生了中断向量 13 ？如果内核允许 `softint` 的 `int $14` 指令去调用内核中断向量 14 所对应的的缺页处理函数，会发生什么？
 
----end section---
+:::
 
 到这里，本次实验的 Part A 就结束了。不要忘了将 `answers-lab3` 添加进 git，并提交你的修改，~~并在截止日期前运行 make handin~~（如果你已经在这时完成了 Part B，就不用再提交一次啦）。
 
@@ -307,12 +298,11 @@ x86 处理器可产生的全部同步异常内部使用 0 ~ 31 作为中断向�
 
 中断向量 14, `T_PGFLT`. 对应的缺页异常，是在这次和下次实验中我们都会用到很多次的非常重要的一个异常。当处理器发生缺页时，它将造成缺页的线性(或者说，虚拟)地址存储在一个特别的处理器控制寄存器 `CR2` 中。在 `trap.c`，我们已经提供了一个特别的函数 `page_fault_handler()` 的开始，来处理缺页异常。
 
----section exercise---
+::: exercise 练习 5.
 
-**练习 5.**  
 修改 `trap_dispatch()`，将缺页异常分发给 `page_fault_handler()`。你现在应该能够让 `make grade` 通过 `faultread`，`faultreadkernel`，`faultwrite` 和 `faultwritekernel` 这些测试了。如果这些中的某一个不能正常工作，你应该找找为什么，并且解决它。记住，你可以用 `make run-x` 或者 `make run-x-nox` 来直接使 JOS 启动某个特定的用户程序。
 
----end section---
+:::
 
 
 接下来你将实现系统调用，这样就能让内核更有能力处理缺页了。
@@ -321,34 +311,30 @@ x86 处理器可产生的全部同步异常内部使用 0 ~ 31 作为中断向�
 
 中断向量 3, `T_BKPT`, 所对应的断点异常通常用于调试器。调试器将程序代码中的指令临时替换为一个特别的 1 字节 `int3` 软件中断指令来插入断点，在 JOS 中，我们有一点点滥用这个功能，让它变为任何用户进程都可以唤起 JOS 内核监视器的伪系统调用。不过，如果我们把 JOS 内核监视器当成是最原始的调试器的话，这样做也许还蛮正确的。例如，在 `lib/panic.c` 中定义的用户模式下的 `panic()` 方法，就是打印出 panic message 之后调用一个 `int3`。
 
----section exercise---
+::: exercise 练习 6.
 
-**练习 6.**  
 修改 `trap_dispatch()` 使断点异常唤起内核监视器。现在，你应该能够让 `make grade` 在 `breakpoint` 测试中成功了。
 
----end section---
+:::
 
----section challenge---
+::: challenge 挑战！
 
-**挑战！**   
 修改你的 JOS 内核，让你能够在断点之后从当前位置恢复运行，或者在断点之后继续单步运行。你需要理解 `EFLAGS` 中的某个特定的位来实现单步运行。
 
----end section---
+:::
 
----section challenge---
+::: challenge 可选
 
-**可选：**   
 如果你非常热爱挑战，试着找一些 x86 反汇编代码，比如，从 QEMU 中拿到它，或者从 GNU binutils 中找找，或者自己写一些。拓展 JOS 内核监视器，使其能够反汇编并显示你正在单步执行的指令。结合我们在 lab 2 中实现的符号表，这些事情就是真正的内核调试器所做的了。
 
----end section---
+:::
 
----section question---
+::: question 问题
 
-**问题**
 + 断点那个测试样例可能会生成一个断点异常，或者生成一个一般保护错，这取决你是怎样在 IDT 中初始化它的入口的（换句话说，你是怎样在 `trap_init` 中调用 `SETGATE` 方法的）。为什么？你应该做什么才能让断点异常像上面所说的那样工作？怎样的错误配置会导致一般保护错？
 + 你认为这样的机制意义是什么？尤其要想想测试程序 `user/softint` 的所作所为 / 尤其要考虑一下 `user/softint` 测试程序的行为。
 
----end section---
+:::
 
 ### 系统调用
 
@@ -358,18 +344,16 @@ x86 处理器可产生的全部同步异常内部使用 0 ~ 31 作为中断向�
 
 应用会将系统调用号和系统调用参数放入寄存器。这样的话，内核也不用去用户进程的栈或者指令流中到处找了。系统调用号会存在 `%eax` 中，最多 5 个参数会相应地存在 `%edx`, `%ecx`, `%ebx`, `%edi` 和 `%esi` 中。内核将返回值放在 `%eax` 中。发起系统调用的汇编代码已经为你写好了，在 `lib/syscall.c` 的 `syscall()` 。你应该读一读，确保你清楚到底发生了什么。
 
----section exercise---
+::: exercise 练习 7.
 
-**练习 7.**  
 在内核中断描述符表中为中断向量 `T_SYSCALL` 添加一个处理函数。你需要编辑 `kern/trapentry.S` 和 `kern/trap.c` 的 `trap_init()` 方法。你也需要修改 `trap_dispath()` 来将系统调用中断分发给在 `kern/syscall.c` 中定义的 `syscall()`。确保如果系统调用号不合法，`syscall()` 返回 `-E_INVAL`。你应该读一读并且理解 `lib/syscall.c`（尤其是内联汇编例程）来确定你已经理解了系统调用接口。通过调用相应的内核函数，处理在 `inc/syscall.h` 中定义的所有系统调用。
 
 通过 `make run-hello` 运行你的内核下的 `user/hello` 用户程序，它现在应该能在控制台中打印出 **hello, world** 了，接下来会在用户模式造成一个缺页。如果这些没有发生，也许意味着你的系统调用处理函数不太对。现在应该也能在 `make grade` 中通过 `testbss` 这个测试了。
 
----end section---
+:::
 
----section challenge---
+::: challenge 挑战！
 
-**挑战！**  
 通过使用 `sysenter` 和 `sysexit` 指令实现系统调用，而不是 `int 0x30` 和 `iret`。
 
 这两个指令是 Intel 设计的，比 `int/iret` 要快很多的系统调用方式。他们用寄存器而不是栈，并且靠着推测段寄存器被如何使用来实现这一点。这些指令的细节实现可以在英特尔的参考手册的 Volume 2B 找到。
@@ -385,7 +369,7 @@ GCC 的内联汇编器会自动保存那些你告诉它直接读入值的寄存�
 注意这样做只能支持 4 个参数，所以你需要把旧的系统调用方式保留下来来支持那些有 5 个参数的系统调用。而且，因为这个快速路径不会更新当前进程的陷阱帧，所以它也不适合我们接下来要加入的一些系统调用。  
 一旦我们在下个实验中启用异步中断，你也许需要再回顾一下你的代码。具体来说，你应该需要在返回用户进程时启用中断，`sysexit` 不会帮你这么做。
 
----end section---
+:::
 
 ### 启动用户模式
 
@@ -393,12 +377,11 @@ GCC 的内联汇编器会自动保存那些你告诉它直接读入值的寄存�
 
 `libmain()` 接下来调用 `umain`，以 hello 这个程序为例，是 `user/hello.c`。注意，它在打出 `hello, world` 后，试图访问 `thisenv->env_id`。这是它之前出错的原因。现在，因为你已经初始化好了 `thisenv`，应该不会再出错了。如果它还是有问题，你也许没有正确的将 `UENVS` 映射为用户可读的（回到在 Part A 的 `pmap.c`，这是我们第一次使用 `UENVS` 这片内存区域的地方。）
 
----section exercise---
+::: exercise 练习 8.
 
-**练习 8.**  
 在用户库文件中补全所需要的代码，并启动你的内核。你应该能看到 `user/hello` 打出了 `hello, world` 和 `i am environment 00001000`。接下来，`user/hello` 尝试通过调用 `sys_env_destory()` 方法退出（在 `lib/libmain.c` 和 `lib/exit.c`）。因为内核目前只支持单用户进程，它应该会报告它已经销毁了这个唯一的进程并进入内核监视器。在这时，你应该能够在 `make grade` 中通过 `hello` 这个测试了。
 
----end section---
+:::
 
 ### Page faults and memory protection / 缺页和内存保护
 
@@ -419,9 +402,8 @@ GCC 的内联汇编器会自动保存那些你告诉它直接读入值的寄存�
 
 因此，内核从来不会因为对用户提供的指针解引用而发生缺页。如果内核真的发生缺页了，那么它就应该恐慌并终止。
 
----section exercise---
+::: exercise 练习 9.
 
-**练习 9.**  
 修改 `kern/trap.c`，如果缺页发生在内核模式，应该恐慌。
 
 提示：要判断缺页是发生在用户模式还是内核模式下，只需检查 `tf_cs` 的低位。
@@ -440,20 +422,19 @@ GCC 的内联汇编器会自动保存那些你告诉它直接读入值的寄存�
 
 最后，修改在 `kern/kdebug.c` 的 `debuginfo_eip`，对 `usd`, `stabs`, `stabstr` 都要调用 `user_mem_check`。修改之后，如果你运行 `user/breakpoint` ，你应该能在内核监视器下输入 `backtrace` 并且看到调用堆栈遍历到 `lib/libmain.c`，接下来内核会缺页并恐慌。是什么造成的内核缺页？你不需要解决这个问题，但是你应该知道为什么会发生缺页。（注：如果整个过程都没发生缺页，说明上面的实现可能有问题。如果在能够看到 `lib/libmain.c` 前就发生了缺页，可能说明之前某次实验的代码存在问题，也可能是由于 GCC 的优化，它没有遵守使我们这个功能得以正常工作的函数调用传统，如果你能合理解释它，即使不能看到预期的结果也没有关系。）
 
----end section---
+:::
 
 你刚刚实现的机制对于恶意的用户程序应该也有效，试试 `user/evilhello`。
 
----section exercise---
+::: exercise 练习 10.
 
-**练习 10.**  
 启动你的内核，运行 `user/evilhello`。进程应该被销毁，内核不应该恐慌，你应该能看到类似下面的输出：
 
     [00000000] new env 00001000
     [00001000] user_mem_check assertion failure for va f010000c
     [00001000] free env 00001000
 
----end section---
+:::
 
 这次实验到这里就完成了。检查一下你是否通过了 `make grade` 的全部测试。不要忘了完成所有问题并将 1 个挑战练习的解答写在 `answer-lab3.txt` 中。提交你的更改 ~~并执行make handin来提交作业~~
 
@@ -476,6 +457,9 @@ HTML 编译： [StackEdit](https://stackedit.io/)
 ```javascript
 Handlebars.registerHelper('transform', function (options) {
   var result = options.fn(this);
+  var regex = /(<p>::: )([\w]+) ([^<\n]+?)(<\/p>\n)(.+?)(\n<p>:::<\/p>)/gms;
+  var replace = '<section class="custom-block $2" type="$2"><strong>$3</strong>$5</section>';
+  result = result.replace(regex, replace)
   result = result.replace(/<p>—section (.+?)—<\/p>/g, '<section type="$1">')
   result = result.replace(/<p>—end section—<\/p>/g, '</section>')
   return result;
