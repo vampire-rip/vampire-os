@@ -11,6 +11,10 @@ sidebarDepth: 2
 
 所需资源在（可能不需要全部下载，按需下载即可）：
 
+::: warning
+代码和工具不对外网提供~ 文中有外网链接喵
+:::
+
 + 实验所需源代码 [lab.zip](/files/lab.zip)
 + QEMU [qemu.zip](/files/qemu.zip)
 + Ubuntu 18.04 系统镜像（如需）[ubuntu.zip](/files/ubuntu.zip)
