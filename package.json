@@ -1,7 +1,7 @@
 {
-  "name": "vampire-docs",
-  "version": "0.1.0",
-  "description": "vampire docs",
+  "name": "vampire-os",
+  "version": "1.0.0",
+  "description": "Full guide of 6.828 OS Lab",
   "main": "index.js",
   "scripts": {
     "build": "vuepress build docs",

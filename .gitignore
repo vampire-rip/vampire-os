@@ -3,3 +3,4 @@
 package-lock.json
 /docs/.vuepress/dist
 /docs/.vuepress/public/files
+/public

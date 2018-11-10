@@ -58,6 +58,7 @@ module.exports = {
     editLinkText: '你说的不对，我有意见！',
     lastUpdated: '上次更新',
   },
+  dest: './public',
   evergreen: true,
   markdown: {
     extendMarkdown: md => {
