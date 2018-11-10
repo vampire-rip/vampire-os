@@ -62,7 +62,7 @@ Lab4 包含一些新的代码文件，你应当在开始之前先浏览它们：
 
 在启动 AP 之前，BSP 应当首先收集多处理器系统的信息，例如，CPU总数，他们的 APIC ID，和 LAPIC单元 的 MMIO 地址。在 `kern/mpconfig.c` 中的 `mp_init()` 函数通过读取 BIOS 存储区域的 多处理器配置表(MP coniguration table) 来获得相关信息。
 
-在 `kern/init.c` 的 `boot_aps()` 函数驱动 AP 的引导过程。 AP 从实模式开始启动，就像 在 `boot/boot.S` 中的 **bootloader** 一样。所以 `boot_aps()` 将 AP 的入口代码 ( `kern.mpentry.S` ) 拷贝到一个实模式中能够访问到的内存地址。与 bootloader 不同的是，我们可以控制 AP 从哪里开始执行代码。在这里我们把入口代码拷贝到了 *0x7000* (`MPENTRY_PADDR`)，不过其实 640KB 以下任何一个没有使用的、按页对齐的物理内存均可使用。
+在 `kern/init.c` 的 `boot_aps()` 函数驱动 AP 的引导过程。 AP 从实模式开始启动，就像 在 `boot/boot.S` 中的 **bootloader** 一样。所以 `boot_aps()` 将 AP 的入口代码 ( `kern/mpentry.S` ) 拷贝到一个实模式中能够访问到的内存地址。与 bootloader 不同的是，我们可以控制 AP 从哪里开始执行代码。在这里我们把入口代码拷贝到了 *0x7000* (`MPENTRY_PADDR`)，不过其实 640KB 以下任何一个没有使用的、按页对齐的物理内存均可使用。
 
 而后，`boot_aps()` 通过发送 *STARTUP IPI* （interprocesser interrupt, 处理器间中断） 并提供一个初始 CS:IP （AP 入口代码的位置，我们这里是 `MPENRTY_PADDR` ） 给对应 AP 的 LAPIC 单元 ，依次激活每个 AP。 `kern/mpentry.S` 中的入口代码和 `boot/boot.S` 中的十分相似。在一些简单的处理后，它将 AP 置于保护模式，并启用页表， 接着调用 C 语言的设置例程 `mp_main()` （也在 `kern/init.c` 中）。`boot_aps()` 会等待 AP 在 它的 `struct CpuInfo` 中设置 `cpu_status` 字段为 `CPU_STARTED` 后才开始唤醒下一个 AP。
 
