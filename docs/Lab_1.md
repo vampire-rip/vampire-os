@@ -169,7 +169,7 @@ The target architecture is assumed to be i8086
 
 ```magic
 16 * 0xf000 + 0xfff0   # 在 16 进制下乘以 16
-   = 0xf0000 + 0xfff0  # 只追加一个0
+   = 0xf0000 + 0xfff0  # 只追加一个 0
    = 0xffff0
 ```
 
