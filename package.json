@@ -4,9 +4,9 @@
   "description": "Full guide of 6.828 OS Lab",
   "main": "index.js",
   "scripts": {
-    "build": "npm run publish && vuepress build docs",
+    "build": "npm run make-static && vuepress build docs",
     "dev": "vuepress dev docs",
-    "publish": "vampire-markdown-printer docs/Lab_*.md --outputDir docs/.vuepress/public/static"
+    "make-static": "vampire-markdown-printer docs/Lab_*.md --outputDir docs/.vuepress/public/static"
   },
   "repository": {
     "type": "git",
@@ -20,7 +20,7 @@
   "homepage": "https://github.com/vampire-rip/vampire-os#readme",
   "devDependencies": {
     "markdown-it-container": "^2.0.0",
-    "vampire-markdown-printer": "github:SunriseFox/vampire-markdown-printer",
+    "vampire-markdown-printer": "^0.1.1",
     "vuepress": "^1.0.0-alpha.20"
   }
 }
