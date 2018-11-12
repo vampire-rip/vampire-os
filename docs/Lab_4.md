@@ -587,22 +587,4 @@ Part C 到这里就结束了。确保你已经通过了所有 `make grade` 测�
 
 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 
-HTML 编译： [StackEdit](https://stackedit.io/)
-
-编译脚本：
-
-```javascript
-Handlebars.registerHelper('transform', function (options) {
-  var result = options.fn(this);
-  var regex = /(<p>::: )([\w]+) ([^<\n]+?)(<\/p>\n)(.+?)(\n<p>:::<\/p>)/gms;
-  var replace = '<section class="custom-block $2" type="$2"><strong>$3</strong>$5</section>';
-  result = result.replace(regex, replace)
-  result = result.replace(/<p>—section (.+?)—<\/p>/g, '<section type="$1">')
-  result = result.replace(/<p>—end section—<\/p>/g, '</section>')
-  return result;
-});
-```
-
-```javascript
-{{#transform}}{{{files.0.content.html}}}{{/transform}}
-```
+HTML 编译： [Vampire Markdown Printer](https://github.com/SunriseFox/vampire-markdown-printer)

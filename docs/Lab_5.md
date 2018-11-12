@@ -106,7 +106,7 @@ x86 处理器使用 EFLAGS 寄存器的 IOPL 位来决定保护模式下的代�
 
 :::
 
-注意，本次实验的 `GNUmakefile` 会配置 QEMU 和以前一样使用 `obj/kern/kernel.img` 作为磁盘 0 的映像，并使用新的 obj/fs/fs.img 作为磁盘 1 的映像。对于 DOS/Windows，通常分别对应于 C: 和 D:。在本次实验中，我们的文件系统应该只需要对磁盘 1 进行操作，而磁盘 0 只用于启动内核。如果你不小心破坏了磁盘映像，你可以用下面的指令来把它们还原到最开始的状态：
+注意，本次实验的 `GNUmakefile` 会配置 QEMU 和以前一样使用 `obj/kern/kernel.img` 作为磁盘 0 的映像，并使用新的 `obj/fs/fs.img` 作为磁盘 1 的映像。对于 DOS/Windows，通常分别对应于 C: 和 D:。在本次实验中，我们的文件系统应该只需要对磁盘 1 进行操作，而磁盘 0 只用于启动内核。如果你不小心破坏了磁盘映像，你可以用下面的指令来把它们还原到最开始的状态：
 
 ```bash
 rm obj/kern/kernel.img obj/fs/fs.img
@@ -339,22 +339,4 @@ shell 还不能支持 I/O 重定向。如果能够运行 `sh <script` 这样的�
 
 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 
-HTML 编译： [StackEdit](https://stackedit.io/)
-
-编译脚本：
-
-```javascript
-Handlebars.registerHelper('transform', function (options) {
-  var result = options.fn(this);
-  var regex = /(<p>::: )([\w]+) ([^<\n]+?)(<\/p>\n)(.+?)(\n<p>:::<\/p>)/gms;
-  var replace = '<section class="custom-block $2" type="$2"><strong>$3</strong>$5</section>';
-  result = result.replace(regex, replace)
-  result = result.replace(/<p>—section (.+?)—<\/p>/g, '<section type="$1">')
-  result = result.replace(/<p>—end section—<\/p>/g, '</section>')
-  return result;
-});
-```
-
-```javascript
-{{#transform}}{{{files.0.content.html}}}{{/transform}}
-```
+HTML 编译： [Vampire Markdown Printer](https://github.com/SunriseFox/vampire-markdown-printer)

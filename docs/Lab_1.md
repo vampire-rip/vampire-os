@@ -112,7 +112,7 @@ Type 'help' for a list of commands.
 K>
 ```
 
-从 `Booting from Hard Disk…` 后所有内容都是从我们的 JOS 内核打印出来的； `K> ` 是型监视器提示符，是一个交互式控制程序，已经包含在内核中了。以上这些行也会出现在运行 QEMU 的常规 shell 窗口中。为了实现自动测试和评分，我们调整了 JOS 的内核将其控制结果的输出不仅写到了虚拟的 VGA 显示器中（能在 QEMU 窗口上看见的，用 WSL 的话，无法看见这个窗口），也输入到模拟 PC 的虚拟串行接口上，QEMU 将输出转为自己的标准输出，显示在屏幕上。同样的，JOS 内核也会接收来自于键盘和其它串行设备的输入，因此你既可以将指令输入到 VGA 的显示器上或输入到运行 QEMU 的终端上。另外，你也可以运行 `make qemu-nox` 使用没有 VGA 显示器的串行控制台。 如果你是用的 WSL，或是 SSH 远程登录的方式连接在服务器上进行实验，这可能很方便。
+从 `Booting from Hard Disk…` 后所有内容都是从我们的 JOS 内核打印出来的； `K> ` 是我们的小型内核监视器（或者准确地说，是包含在内核中的一个交互式控制程序）打出来的提示符。以上这些行也会出现在运行 QEMU 的常规 shell 窗口中。为了实现自动测试和评分，我们调整了 JOS 的内核将其控制结果的输出不仅写到了虚拟的 VGA 显示器中（能在 QEMU 窗口上看见的，用 WSL 的话，无法看见这个窗口），也输入到模拟 PC 的虚拟串行接口上，QEMU 将输出转为自己的标准输出，显示在屏幕上。同样的，JOS 内核也会接收来自于键盘和其它串行设备的输入，因此你既可以将指令输入到 VGA 的显示器上或输入到运行 QEMU 的终端上。另外，你也可以运行 `make qemu-nox` 使用没有 VGA 显示器的串行控制台。 如果你是用的 WSL，或是 SSH 远程登录的方式连接在服务器上进行实验，这可能很方便。
 
 现在内核监视器只支持两种命令，`help` 和 `kerninfo`。试试看。
 
@@ -148,7 +148,7 @@ The target architecture is assumed to be i8086
 
 ::: warning 提示
 
-如果之前完全遵守我们的步骤，此时不应该存在任何问题。如果使用旧版代码，请按旧版文档进行操作。
+如果你取得的是旧版代码或旧版教程，可能要在 `~/.gitinit` 中添加一些代码才能正确执行。GDB 会对此给出提示，请按照 GDB 的提示操作。
 
 :::
 
@@ -334,7 +334,7 @@ objdump -f obj/kern/kernel
 
 ::: exercise 练习 8.
 
-我们省略了一小段代码 —— 使用 `％o`形式的模式打印八进制数字所需的代码。查找并补全这个代码片段。
+我们省略了一小段代码 —— 使用 `％o` 形式的模式打印八进制数字所需的代码。查找并补全这个代码片段。
 
 :::
 
@@ -490,22 +490,4 @@ K>
 
 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 
-HTML 编译： [StackEdit](https://stackedit.io/)
-
-编译脚本：
-
-```javascript
-Handlebars.registerHelper('transform', function (options) {
-  var result = options.fn(this);
-  var regex = /(<p>::: )([\w]+) ([^<\n]+?)(<\/p>\n)(.+?)(\n<p>:::<\/p>)/gms;
-  var replace = '<section class="custom-block $2" type="$2"><strong>$3</strong>$5</section>';
-  result = result.replace(regex, replace)
-  result = result.replace(/<p>—section (.+?)—<\/p>/g, '<section type="$1">')
-  result = result.replace(/<p>—end section—<\/p>/g, '</section>')
-  return result;
-});
-```
-
-```javascript
-{{#transform}}{{{files.0.content.html}}}{{/transform}}
-```
+HTML 编译： [Vampire Markdown Printer](https://github.com/SunriseFox/vampire-markdown-printer)
