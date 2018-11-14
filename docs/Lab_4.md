@@ -371,6 +371,14 @@ JOS 用户异常堆栈大小也是一个页面，栈顶被定义在虚拟地址 
 
     ...
     [00000000] new env 00001000
+    i faulted at va deadbeef, err 6
+    [00001000] exiting gracefully
+    [00001000] free env 00001000
+
+运行 `user/faultalloc`，你将会看到：
+
+    ...
+    [00000000] new env 00001000
     fault deadbeef
     this string was faulted in at deadbeef
     fault cafebffe
