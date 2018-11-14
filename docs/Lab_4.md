@@ -60,7 +60,7 @@ Lab4 包含一些新的代码文件，你应当在开始之前先浏览它们：
 
 ### 应用处理器（AP）引导程序
 
-在启动 AP 之前，BSP 应当首先收集多处理器系统的信息，例如，CPU总数，他们的 APIC ID，和 LAPIC单元 的 MMIO 地址。在 `kern/mpconfig.c` 中的 `mp_init()` 函数通过读取 BIOS 存储区域的 多处理器配置表(MP coniguration table) 来获得相关信息。
+在启动 AP 之前，BSP 应当首先收集多处理器系统的信息，例如，CPU总数，他们的 APIC ID，和 LAPIC单元 的 MMIO 地址。在 `kern/mpconfig.c` 中的 `mp_init()` 函数通过读取 BIOS 存储区域的 多处理器配置表(MP configuration table) 来获得相关信息。
 
 在 `kern/init.c` 的 `boot_aps()` 函数驱动 AP 的引导过程。 AP 从实模式开始启动，就像 在 `boot/boot.S` 中的 **bootloader** 一样。所以 `boot_aps()` 将 AP 的入口代码 ( `kern/mpentry.S` ) 拷贝到一个实模式中能够访问到的内存地址。与 bootloader 不同的是，我们可以控制 AP 从哪里开始执行代码。在这里我们把入口代码拷贝到了 *0x7000* (`MPENTRY_PADDR`)，不过其实 640KB 以下任何一个没有使用的、按页对齐的物理内存均可使用。
 
@@ -221,7 +221,7 @@ SMP: CPU 3 starting
 
 :::
 
-## 用于创建进程的系统调用
+### 用于创建进程的系统调用
 
 尽管你的内核目前能够运行多个用户进程并在其中切换，但仍受限于只能运行由内核创建的进程。现在，你将实现必要的系统调用，使得用户进程也可以创建和启动其他新的用户进程。
 
@@ -368,14 +368,6 @@ JOS 用户异常堆栈大小也是一个页面，栈顶被定义在虚拟地址 
     [00001000] free env 00001000
 
 运行 `user/faultdie`，你将会看到：
-
-    ...
-    [00000000] new env 00001000
-    i faulted at va deadbeef, err 6
-    [00001000] exiting gracefully
-    [00001000] free env 00001000
-
-运行 `user/faultalloc`，你将会看到：
 
     ...
     [00000000] new env 00001000
