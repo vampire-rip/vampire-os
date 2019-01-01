@@ -27,6 +27,13 @@ module.exports = {
     sidebar: [
       ['/home', '环境搭建指南'],
       {
+        title: '实验内容指导',
+        collapsable: false,
+        children: [
+          ['/assemble.md', 'x86 汇编简单指南'],
+        ]
+      },
+      {
         title: '安装 Ubuntu 18.04 系统',
         collapsable: false,
         children: [
